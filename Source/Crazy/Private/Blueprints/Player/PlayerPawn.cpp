@@ -2,6 +2,8 @@
 
 
 #include "Blueprints/Player/PlayerPawn.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -17,6 +19,8 @@ void APlayerPawn::BeginPlay()
 	Super::BeginPlay();
 	MainCamera = Cast<UCameraComponent>(GetComponentsByTag(UCameraComponent::StaticClass(), "MainCamera")[0]);
 	targetCameraZoom = MainCamera->OrthoWidth;
+
+	Grid = Cast<AGridManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass()));
 }
 
 // Called every frame
@@ -25,8 +29,23 @@ void APlayerPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	ManageCamera(DeltaTime);
-	
+	UpdateHoveredTile();
 }
+
+void APlayerPawn::ManageCamera(float DeltaTime)
+{
+	MainCamera->OrthoWidth = FMath::Lerp(MainCamera->OrthoWidth, targetCameraZoom, DeltaTime * CameraLerpSpeed);
+}
+
+void APlayerPawn::UpdateHoveredTile()
+{
+	FHitResult CursorHit;
+	UGameplayStatics::GetPlayerController(GetWorld(),0)->GetHitResultUnderCursorByChannel(TileTraceChannel,false, CursorHit);
+	if (!CursorHit.bBlockingHit)
+		return;
+	HoveredTile = Grid->GetTileAtLocation(CursorHit.Location);
+}
+
 void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -50,9 +69,4 @@ void APlayerPawn::ManageInputCameraZoom(float input)
 	targetCameraZoom += input * cameraZoomSpeed;
 
 	targetCameraZoom = FMath::Clamp(targetCameraZoom, cameraMinZoom, cameraMaxZoom);
-}
-
-void APlayerPawn::ManageCamera(float DeltaTime) 
-{
-	MainCamera->OrthoWidth = FMath::Lerp(MainCamera->OrthoWidth, targetCameraZoom, DeltaTime * CameraLerpSpeed);
 }

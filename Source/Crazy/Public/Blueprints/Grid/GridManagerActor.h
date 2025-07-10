@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "Structs/TileDefinition.h"
 #include "GridManagerActor.generated.h"
 
 UCLASS()
@@ -23,9 +24,12 @@ public:
 	UPROPERTY(editanywhere, Category = "Grid")
 	int sizeY = 10;
 	UPROPERTY()
-	float SquareSize = 100.f;
-	UPROPERTY()
+	float TileSize = 100.f;
+	UPROPERTY(editanywhere)
 	TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
+
+	UPROPERTY(editanywhere)
+	TArray<FTileDefinition> Tiles;
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,4 +41,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)
 	void SpawnGrid(int TilesX, int TilesY);
+	FTileDefinition GetTileAtLocation(FVector location);
 };

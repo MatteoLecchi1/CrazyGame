@@ -2,6 +2,7 @@
 
 
 #include "Blueprints/Grid/GridManagerActor.h"
+#include "Chaos/DebugDrawQueue.h"
 
 // Sets default values
 AGridManagerActor::AGridManagerActor()
@@ -15,13 +16,12 @@ AGridManagerActor::AGridManagerActor()
 }
 void AGridManagerActor::OnConstruction(const FTransform& Transform)
 {
-
+	SpawnGrid(sizeX, sizeY);
 }
 // Called when the game starts or when spawned
 void AGridManagerActor::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnGrid(sizeX, sizeY);
 
 }
 
@@ -29,7 +29,6 @@ void AGridManagerActor::BeginPlay()
 void AGridManagerActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
@@ -40,13 +39,7 @@ void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 	}
 
 	InstancedStaticMeshComponent->ClearInstances();
-	float gridXOffset = TilesX * SquareSize / 2;
-	float gridYOffset = TilesY * SquareSize / 2;
-
-	if (TilesX % 2 != 0)
-		gridXOffset -= SquareSize / 2;
-	if (TilesY % 2 != 0)
-		gridYOffset -= SquareSize / 2;
+	Tiles.Empty();
 
 	FTransform Spawntransform;
 	Spawntransform.SetScale3D(FVector(1.f, 1.f, 1.f));
@@ -59,18 +52,50 @@ void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 	{
 		for (int Y = 0; Y < TilesY; Y++)
 		{
-			float TileXLocation = X * SquareSize - gridXOffset;
-			float TileYLocation = Y * SquareSize - gridYOffset;
+			float TileXLocation = X * TileSize;
+			float TileYLocation = Y * TileSize;
 
 			FVector TraceStart = FVector(TileXLocation, TileYLocation, 100.f);
 			FVector TraceEnd = FVector(TileXLocation, TileYLocation, -100.f);
 
-			GetWorld()->LineTraceSingleByChannel(Hitfront, TraceStart, TraceEnd, TraceChannelProperty, CollisionParams);
+			FVector WorldTraceStart = GetActorTransform().TransformPosition(TraceStart);
+			FVector WorldTraceEnd = GetActorTransform().TransformPosition(TraceEnd);
+
+
+			GetWorld()->LineTraceSingleByChannel(Hitfront, WorldTraceStart, WorldTraceEnd, TraceChannelProperty, CollisionParams);
 			if (!Hitfront.bBlockingHit)
 				continue;
 
 			Spawntransform.SetLocation(FVector(TileXLocation, TileYLocation, 0.1f));
 			InstancedStaticMeshComponent->AddInstance(Spawntransform);
+
+			FTileDefinition newTile;
+			newTile.XID = X;
+			newTile.YID = Y;
+			newTile.tileType = TileType::WALKABLE;
+			newTile.Location = Spawntransform.GetLocation();
+
+			Tiles.Add(newTile);
 		}
 	}
+}
+
+FTileDefinition AGridManagerActor::GetTileAtLocation(FVector location)
+{
+	FVector localLocation = location - GetActorLocation();
+
+	int X = FMath::RoundToInt(localLocation.X / TileSize);
+	int Y = FMath::RoundToInt(localLocation.Y / TileSize);
+
+	for (FTileDefinition tile : Tiles)
+	{
+		if (tile.XID == X && tile.YID == Y)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Yellow, FString::Printf(TEXT("%lld"), Y));
+			DrawDebugSphere(GetWorld(), GetActorTransform().TransformPosition(tile.Location), 40, 10, FColor::Red, false, 0.1);
+			return tile;
+		}
+	}
+	FTileDefinition newTile;
+	return newTile;
 }

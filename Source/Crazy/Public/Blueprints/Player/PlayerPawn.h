@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Camera/CameraComponent.h"
+#include "Structs/TileDefinition.h"
+#include "Blueprints/Grid/GridManagerActor.h"
 #include "PlayerPawn.generated.h"
 
 UCLASS()
@@ -33,6 +35,13 @@ public:
 	UPROPERTY()
 	float targetCameraZoom;
 
+	UPROPERTY()
+	AGridManagerActor* Grid;
+	UPROPERTY()
+	FTileDefinition HoveredTile;
+	UPROPERTY(editanywhere)
+	TEnumAsByte<ETraceTypeQuery> TileTraceChannel = ETraceTypeQuery::TraceTypeQuery1;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -44,6 +53,8 @@ public:
 	void ManageCamera(float DeltaTime);
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
+
+	void UpdateHoveredTile();
 
 	void ManageInputCameraX(float input);
 	void ManageInputCameraY(float input);
