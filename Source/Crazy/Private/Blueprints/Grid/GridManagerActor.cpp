@@ -14,15 +14,11 @@ AGridManagerActor::AGridManagerActor()
 	InstancedStaticMeshComponent->SetupAttachment(RootComponent);
 	InstancedStaticMeshComponent->bDisableCollision = true;
 }
-void AGridManagerActor::OnConstruction(const FTransform& Transform)
-{
-	SpawnGrid(sizeX, sizeY);
-}
 // Called when the game starts or when spawned
 void AGridManagerActor::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SpawnGrid(sizeX, sizeY);
 }
 
 // Called every frame
@@ -41,9 +37,10 @@ void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 	InstancedStaticMeshComponent->ClearInstances();
 	Tiles.Empty();
 
-	FTransform Spawntransform;
-	Spawntransform.SetScale3D(FVector(1.f, 1.f, 1.f));
-	Spawntransform.SetRotation(FQuat::MakeFromEuler(FVector(0.f, 0.f, 0.f)));
+	FTransform Spawntransform = FTransform(
+		FQuat::MakeFromEuler(FVector(0.f, 0.f, 0.f)),
+		FVector(0.f, 0.f, 0.f),
+		FVector(1.f, 1.f, 1.f));
 	
 	FCollisionQueryParams CollisionParams;
 	FHitResult Hitfront;
@@ -70,32 +67,29 @@ void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 			InstancedStaticMeshComponent->AddInstance(Spawntransform);
 
 			FTileDefinition newTile;
-			newTile.XID = X;
-			newTile.YID = Y;
-			newTile.tileType = TileType::WALKABLE;
-			newTile.Location = Spawntransform.GetLocation();
+			newTile.X = X;
+			newTile.Y = Y;
+			newTile.Location = GetActorTransform().TransformPosition(Spawntransform.GetLocation());
 
 			Tiles.Add(newTile);
 		}
 	}
 }
 
-FTileDefinition AGridManagerActor::GetTileAtLocation(FVector location)
+int AGridManagerActor::GetTileAtLocation(FVector location)
 {
-	FVector localLocation = location - GetActorLocation();
+	FVector localLocation = GetActorTransform().InverseTransformPosition(location);
 
 	int X = FMath::RoundToInt(localLocation.X / TileSize);
 	int Y = FMath::RoundToInt(localLocation.Y / TileSize);
 
-	for (FTileDefinition tile : Tiles)
+	for (int i = 0; i < Tiles.Num(); i++)
 	{
-		if (tile.XID == X && tile.YID == Y)
+		if (Tiles[i].X == X && Tiles[i].Y == Y)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Yellow, FString::Printf(TEXT("%lld"), Y));
-			DrawDebugSphere(GetWorld(), GetActorTransform().TransformPosition(tile.Location), 40, 10, FColor::Red, false, 0.1);
-			return tile;
+			//DrawDebugSphere(GetWorld(), tile.Location, 40, 10, FColor::Red, false, 0.1);
+			return i;
 		}
 	}
-	FTileDefinition newTile;
-	return newTile;
+	return -1;
 }

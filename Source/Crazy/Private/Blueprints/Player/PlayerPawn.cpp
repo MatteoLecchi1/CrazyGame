@@ -21,6 +21,9 @@ void APlayerPawn::BeginPlay()
 	targetCameraZoom = MainCamera->OrthoWidth;
 
 	Grid = Cast<AGridManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass()));
+
+	if (HoveredTileWidgetClass)
+		HoveredTileWidget = GetWorld()->SpawnActor<AActor>(HoveredTileWidgetClass, FVector(0.f,0.f,9999999.f), GetActorRotation());
 }
 
 // Called every frame
@@ -41,9 +44,21 @@ void APlayerPawn::UpdateHoveredTile()
 {
 	FHitResult CursorHit;
 	UGameplayStatics::GetPlayerController(GetWorld(),0)->GetHitResultUnderCursorByChannel(TileTraceChannel,false, CursorHit);
+
 	if (!CursorHit.bBlockingHit)
 		return;
-	HoveredTile = Grid->GetTileAtLocation(CursorHit.Location);
+
+	int newTile = Grid->GetTileAtLocation(CursorHit.Location);
+	
+	if (newTile < 0) //invalid tile
+		return;
+	if (newTile == HoveredTile) //invalid tile
+		return;
+
+	HoveredTile = newTile;
+
+	if(HoveredTileWidget)
+	HoveredTileWidget->SetActorLocation(Grid->Tiles[HoveredTile].Location);
 }
 
 void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -53,6 +68,7 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	InputComponent->BindAxis("CameraX", this, &APlayerPawn::ManageInputCameraX);
 	InputComponent->BindAxis("CameraY", this, &APlayerPawn::ManageInputCameraY);
 	InputComponent->BindAxis("CameraZoom", this, &APlayerPawn::ManageInputCameraZoom);
+	InputComponent->BindAction("Interact", IE_Pressed, this, &APlayerPawn::ManageInputInteraction);
 }
 void APlayerPawn::ManageInputCameraX(float input)
 {
@@ -69,4 +85,30 @@ void APlayerPawn::ManageInputCameraZoom(float input)
 	targetCameraZoom += input * cameraZoomSpeed;
 
 	targetCameraZoom = FMath::Clamp(targetCameraZoom, cameraMinZoom, cameraMaxZoom);
+}
+void APlayerPawn::ManageInputInteraction()
+{
+	if (Grid->Tiles[HoveredTile].Occupant)
+	{
+		AGameplayCharacter* targetedCharacter = Cast<AGameplayCharacter>(Grid->Tiles[HoveredTile].Occupant);
+
+		if (targetedCharacter->Faction == Factions::PLAYER)
+		{
+			SelectedCharacter = targetedCharacter;
+		}
+		else
+		{
+			if (!SelectedCharacter)
+				return;
+
+			SelectedCharacter->UseSkill(SelectedCharacter->Skills[0], HoveredTile);
+		}
+	}
+	else
+	{
+		if (!SelectedCharacter)
+			return;
+
+		SelectedCharacter->WalkToTile(HoveredTile);
+	}
 }

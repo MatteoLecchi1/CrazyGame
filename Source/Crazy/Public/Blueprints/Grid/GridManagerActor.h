@@ -28,18 +28,17 @@ public:
 	UPROPERTY(editanywhere)
 	TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
 
-	UPROPERTY(editanywhere)
+	UPROPERTY(VisibleAnywhere)
 	TArray<FTileDefinition> Tiles;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void OnConstruction(const FTransform& Transform) override;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)
 	void SpawnGrid(int TilesX, int TilesY);
-	FTileDefinition GetTileAtLocation(FVector location);
+	int GetTileAtLocation(FVector location);
 };

@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Structs/TileDefinition.h"
 #include "Blueprints/Grid/GridManagerActor.h"
+#include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
 #include "PlayerPawn.generated.h"
 
 UCLASS()
@@ -38,9 +39,18 @@ public:
 	UPROPERTY()
 	AGridManagerActor* Grid;
 	UPROPERTY()
-	FTileDefinition HoveredTile;
-	UPROPERTY(editanywhere)
+	int HoveredTile;
+
+	UPROPERTY(EditAnywhere, Category = "UI|HoveredTile")
+	TSubclassOf<AActor> HoveredTileWidgetClass;
+	UPROPERTY()
+	AActor* HoveredTileWidget;
+	
+	UPROPERTY(EditAnywhere, Category = "UI|HoveredTile")
 	TEnumAsByte<ETraceTypeQuery> TileTraceChannel = ETraceTypeQuery::TraceTypeQuery1;
+
+	UPROPERTY(VisibleAnywhere)
+	AGameplayCharacter* SelectedCharacter;
 
 protected:
 	// Called when the game starts or when spawned
@@ -59,5 +69,6 @@ public:
 	void ManageInputCameraX(float input);
 	void ManageInputCameraY(float input);
 	void ManageInputCameraZoom(float input);
+	void ManageInputInteraction();
 
 };
