@@ -40,7 +40,6 @@ void AGameplayCharacter::BeginPlay()
 void AGameplayCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 float AGameplayCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) 
@@ -57,12 +56,18 @@ float AGameplayCharacter::TakeDamage(float DamageAmount, struct FDamageEvent con
 
 void AGameplayCharacter::OnDeath() 
 {
+	Grid->Tiles[CurrentTile].Occupant = nullptr;
 	Destroy();
 }
 
 void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, int targetedTile)
 {
 	if (!Grid->Tiles[targetedTile].Occupant)
+		return;
+
+	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
+
+	if (distance > skillUsed.MaxRange || distance < skillUsed.MinRange)
 		return;
 
 	AActor* targetedActor = Grid->Tiles[targetedTile].Occupant;
@@ -75,9 +80,7 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, int targetedTile)
 
 void AGameplayCharacter::WalkToTile(int targetedTile)
 {
-	int distance = 
-		FMath::Abs(Grid->Tiles[targetedTile].X - Grid->Tiles[CurrentTile].X) + 
-		FMath::Abs(Grid->Tiles[targetedTile].Y - Grid->Tiles[CurrentTile].Y);
+	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
 
 	if (distance > MovementSpeed)
 		return;

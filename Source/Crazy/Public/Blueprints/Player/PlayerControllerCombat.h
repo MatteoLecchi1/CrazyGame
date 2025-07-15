@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprints/Player/PlayerPawn.h"
+#include "Blueprints/UI/HUDWidget.h"
 #include "PlayerControllerCombat.generated.h"
 
 /**
@@ -19,6 +20,11 @@ public:
 
 	UPROPERTY()
 	APlayerPawn* PlayerPawn;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UHUDWidget> HUDClass;
+	UPROPERTY()
+	UHUDWidget* HUDInstance;
 
 protected:
 	// Called when the game starts or when spawned

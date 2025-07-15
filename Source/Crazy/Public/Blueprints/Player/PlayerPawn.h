@@ -8,6 +8,7 @@
 #include "Structs/TileDefinition.h"
 #include "Blueprints/Grid/GridManagerActor.h"
 #include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
+#include "Blueprints/UI/HUDWidget.h"
 #include "PlayerPawn.generated.h"
 
 UCLASS()
@@ -51,6 +52,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	AGameplayCharacter* SelectedCharacter;
+	UPROPERTY(VisibleAnywhere)
+	int SelectedSkillIndex = -1;
+
+	//UI
+	UPROPERTY()
+	UHUDWidget* HUDInstance;
 
 protected:
 	// Called when the game starts or when spawned
@@ -69,6 +76,7 @@ public:
 	void ManageInputCameraX(float input);
 	void ManageInputCameraY(float input);
 	void ManageInputCameraZoom(float input);
-	void ManageInputInteraction();
+	void ManageInputInteraction1();
+	void ManageInputInteraction2();
 
 };

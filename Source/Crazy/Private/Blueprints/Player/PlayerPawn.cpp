@@ -68,7 +68,8 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	InputComponent->BindAxis("CameraX", this, &APlayerPawn::ManageInputCameraX);
 	InputComponent->BindAxis("CameraY", this, &APlayerPawn::ManageInputCameraY);
 	InputComponent->BindAxis("CameraZoom", this, &APlayerPawn::ManageInputCameraZoom);
-	InputComponent->BindAction("Interact", IE_Pressed, this, &APlayerPawn::ManageInputInteraction);
+	InputComponent->BindAction("Interact1", IE_Pressed, this, &APlayerPawn::ManageInputInteraction1);
+	InputComponent->BindAction("Interact2", IE_Pressed, this, &APlayerPawn::ManageInputInteraction2);
 }
 void APlayerPawn::ManageInputCameraX(float input)
 {
@@ -86,22 +87,29 @@ void APlayerPawn::ManageInputCameraZoom(float input)
 
 	targetCameraZoom = FMath::Clamp(targetCameraZoom, cameraMinZoom, cameraMaxZoom);
 }
-void APlayerPawn::ManageInputInteraction()
+void APlayerPawn::ManageInputInteraction1()
 {
 	if (Grid->Tiles[HoveredTile].Occupant)
 	{
 		AGameplayCharacter* targetedCharacter = Cast<AGameplayCharacter>(Grid->Tiles[HoveredTile].Occupant);
-
-		if (targetedCharacter->Faction == Factions::PLAYER)
+		if (SelectedSkillIndex < 0) 
 		{
-			SelectedCharacter = targetedCharacter;
+			if (targetedCharacter->Faction == Factions::PLAYER)
+			{
+				if (SelectedCharacter == targetedCharacter)
+					return;
+
+				SelectedSkillIndex = -1;
+				SelectedCharacter = targetedCharacter;
+				HUDInstance->UpdateSkillList(SelectedCharacter->Skills);
+			}
 		}
 		else
 		{
 			if (!SelectedCharacter)
 				return;
 
-			SelectedCharacter->UseSkill(SelectedCharacter->Skills[0], HoveredTile);
+			SelectedCharacter->UseSkill(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile);
 		}
 	}
 	else
@@ -111,4 +119,9 @@ void APlayerPawn::ManageInputInteraction()
 
 		SelectedCharacter->WalkToTile(HoveredTile);
 	}
+}
+void APlayerPawn::ManageInputInteraction2()
+{
+	SelectedSkillIndex = -1;
+	SelectedCharacter = nullptr;
 }

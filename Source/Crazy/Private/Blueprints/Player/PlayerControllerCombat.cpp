@@ -9,4 +9,11 @@ void APlayerControllerCombat::BeginPlay()
 	Super::BeginPlay();
 	SetShowMouseCursor(true);
 	PlayerPawn = Cast<APlayerPawn>(GetPawn());
+
+	if (HUDClass)
+	{
+		HUDInstance = CreateWidget<UHUDWidget>(this, HUDClass);
+		HUDInstance->AddToPlayerScreen();
+		PlayerPawn->HUDInstance = HUDInstance;
+	}
 }

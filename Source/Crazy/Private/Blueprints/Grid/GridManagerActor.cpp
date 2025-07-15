@@ -93,3 +93,10 @@ int AGridManagerActor::GetTileAtLocation(FVector location)
 	}
 	return -1;
 }
+
+int AGridManagerActor::CalculateDistance(int Tile1, int Tile2)
+{
+	return
+		FMath::Abs(Tiles[Tile1].X - Tiles[Tile2].X) +
+		FMath::Abs(Tiles[Tile1].Y - Tiles[Tile2].Y);
+}

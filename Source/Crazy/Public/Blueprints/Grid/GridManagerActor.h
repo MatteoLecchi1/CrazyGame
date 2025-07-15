@@ -41,4 +41,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnGrid(int TilesX, int TilesY);
 	int GetTileAtLocation(FVector location);
+	int CalculateDistance(int Tile1, int Tile2);
 };

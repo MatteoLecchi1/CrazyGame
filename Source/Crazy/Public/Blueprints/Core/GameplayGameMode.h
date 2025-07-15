@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Structs/TileDefinition.h"
+#include "Blueprints/Grid/GridManagerActor.h"
+#include "Blueprints/UI/SkillListEntry.h"
 #include "GameplayGameMode.generated.h"
 
 /**

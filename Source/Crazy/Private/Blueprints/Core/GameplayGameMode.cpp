@@ -2,4 +2,6 @@
 
 
 #include "Blueprints/Core/GameplayGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "Blueprints/Player/PlayerPawn.h"
 
