@@ -10,20 +10,25 @@ APlayerPawn::APlayerPawn()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	SetActorTickEnabled(false);
 }
 
 // Called when the game starts or when spawned
 void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	Initialize();
+}
+void APlayerPawn::Initialize()
+{
 	MainCamera = Cast<UCameraComponent>(GetComponentsByTag(UCameraComponent::StaticClass(), "MainCamera")[0]);
 	targetCameraZoom = MainCamera->OrthoWidth;
 
 	Grid = Cast<AGridManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass()));
 
 	if (HoveredTileWidgetClass)
-		HoveredTileWidget = GetWorld()->SpawnActor<AActor>(HoveredTileWidgetClass, FVector(0.f,0.f,9999999.f), GetActorRotation());
+		HoveredTileWidget = GetWorld()->SpawnActor<AActor>(HoveredTileWidgetClass, FVector(0.f, 0.f, 9999999.f), GetActorRotation());
+	SetActorTickEnabled(true);
 }
 
 // Called every frame
@@ -50,9 +55,9 @@ void APlayerPawn::UpdateHoveredTile()
 
 	int newTile = Grid->GetTileAtLocation(CursorHit.Location);
 	
-	if (newTile < 0) //invalid tile
+	if (newTile < 0)
 		return;
-	if (newTile == HoveredTile) //invalid tile
+	if (newTile == HoveredTile)
 		return;
 
 	HoveredTile = newTile;
@@ -108,6 +113,8 @@ void APlayerPawn::ManageInputInteraction1()
 		{
 			if (!SelectedCharacter)
 				return;
+			if (Grid->CheckForObstruction(SelectedCharacter->CurrentTile, HoveredTile).bBlockingHit)
+				return;
 
 			SelectedCharacter->UseSkill(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile);
 		}
@@ -116,12 +123,23 @@ void APlayerPawn::ManageInputInteraction1()
 	{
 		if (!SelectedCharacter)
 			return;
+		if (SelectedSkillIndex >= 0)
+			return;
 
 		SelectedCharacter->WalkToTile(HoveredTile);
 	}
 }
 void APlayerPawn::ManageInputInteraction2()
 {
-	SelectedSkillIndex = -1;
-	SelectedCharacter = nullptr;
+	if(SelectedSkillIndex >= 0)
+	{
+		SelectedSkillIndex = -1;
+	}
+	else
+	{
+		SelectedCharacter = nullptr;
+
+		TArray<FSkillDefinition> EmptySkills;
+		HUDInstance->UpdateSkillList(EmptySkills);
+	}
 }

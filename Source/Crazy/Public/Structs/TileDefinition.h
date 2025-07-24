@@ -28,6 +28,7 @@ enum class DamageElements : uint8
 	SLASH = 0	UMETA(DisplayName = "SLASH"),
 	PIERCE = 1	UMETA(DisplayName = "PIERCE"),
 	BLUNT = 2	UMETA(DisplayName = "BLUNT"),
+	HEAL = 3	UMETA(DisplayName = "HEAL"),
 };
 
 UENUM(BlueprintType)
@@ -36,6 +37,18 @@ enum class Factions : uint8
 	PLAYER = 0		UMETA(DisplayName = "PLAYER"),
 	BANDITS = 1		UMETA(DisplayName = "BANDITS"),
 	MONSTERS = 2	UMETA(DisplayName = "MONSTERS"),
+};
+
+USTRUCT(BlueprintType)
+struct CRAZY_API Fint2DVector : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int X = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Y = 0;
 };
 
 USTRUCT(BlueprintType)
@@ -65,7 +78,7 @@ struct CRAZY_API FDamageDefinition : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int DamageAmmount = 0;
+	int DamageAmount = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	DamageElements DamageElement = DamageElements::SLASH;

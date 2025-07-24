@@ -17,12 +17,18 @@ AGameplayCharacter::AGameplayCharacter()
 void AGameplayCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	Initialize();
+}
+void AGameplayCharacter::Initialize()
+{
 	Grid = Cast<AGridManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass()));
 	int newTile = Grid->GetTileAtLocation(GetActorLocation());
 
 	if (newTile < 0) //invalid tile
+	{
+		Destroy();
 		return;
+	}
 
 	MoveToTile(newTile);
 
@@ -30,7 +36,7 @@ void AGameplayCharacter::BeginPlay()
 
 	auto GameInstance = UCrazyGameInstance::GetGameInstance(GetWorld());
 
-	for (auto key : SkillList) 
+	for (auto key : SkillList)
 	{
 		AddSkill(key, GameInstance);
 	}
@@ -70,11 +76,14 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, int targetedTile)
 	if (distance > skillUsed.MaxRange || distance < skillUsed.MinRange)
 		return;
 
+	if (Grid->CheckForObstruction(CurrentTile, targetedTile).bBlockingHit)
+		return;
+
 	AActor* targetedActor = Grid->Tiles[targetedTile].Occupant;
 
 	for (auto damageInstance : skillUsed.Damage) 
 	{
-		UGameplayStatics::ApplyDamage(targetedActor, damageInstance.DamageAmmount, UGameplayStatics::GetPlayerController(GetWorld(), 0), this, nullptr);
+		UGameplayStatics::ApplyDamage(targetedActor, damageInstance.DamageAmount, UGameplayStatics::GetPlayerController(GetWorld(), 0), this, nullptr);
 	}
 }
 

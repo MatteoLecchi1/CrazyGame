@@ -26,7 +26,9 @@ public:
 	UPROPERTY()
 	float TileSize = 100.f;
 	UPROPERTY(editanywhere)
-	TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
+	TEnumAsByte<ECollisionChannel> FloorCollisionChannel = ECC_Pawn;
+	UPROPERTY(editanywhere)
+	TEnumAsByte<ECollisionChannel> ObstructionChannel = ECC_Pawn;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<FTileDefinition> Tiles;
@@ -34,6 +36,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 public:	
 	// Called every frame
@@ -42,4 +45,5 @@ public:
 	void SpawnGrid(int TilesX, int TilesY);
 	int GetTileAtLocation(FVector location);
 	int CalculateDistance(int Tile1, int Tile2);
+	FHitResult CheckForObstruction(int StartTile, int EndTile);
 };

@@ -3,6 +3,7 @@
 
 #include "Blueprints/Grid/GridManagerActor.h"
 #include "Chaos/DebugDrawQueue.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AGridManagerActor::AGridManagerActor()
@@ -18,6 +19,9 @@ AGridManagerActor::AGridManagerActor()
 void AGridManagerActor::BeginPlay()
 {
 	Super::BeginPlay();
+}
+void AGridManagerActor::OnConstruction(const FTransform& Transform)
+{
 	SpawnGrid(sizeX, sizeY);
 }
 
@@ -30,17 +34,12 @@ void AGridManagerActor::Tick(float DeltaTime)
 void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 {
 	if (!InstancedStaticMeshComponent)
-	{
 		return;
-	}
 
 	InstancedStaticMeshComponent->ClearInstances();
 	Tiles.Empty();
 
-	FTransform Spawntransform = FTransform(
-		FQuat::MakeFromEuler(FVector(0.f, 0.f, 0.f)),
-		FVector(0.f, 0.f, 0.f),
-		FVector(1.f, 1.f, 1.f));
+	FTransform Spawntransform = FTransform::Identity;
 	
 	FCollisionQueryParams CollisionParams;
 	FHitResult Hitfront;
@@ -59,7 +58,7 @@ void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 			FVector WorldTraceEnd = GetActorTransform().TransformPosition(TraceEnd);
 
 
-			GetWorld()->LineTraceSingleByChannel(Hitfront, WorldTraceStart, WorldTraceEnd, TraceChannelProperty, CollisionParams);
+			GetWorld()->LineTraceSingleByChannel(Hitfront, WorldTraceStart, WorldTraceEnd, FloorCollisionChannel, CollisionParams);
 			if (!Hitfront.bBlockingHit)
 				continue;
 
@@ -99,4 +98,20 @@ int AGridManagerActor::CalculateDistance(int Tile1, int Tile2)
 	return
 		FMath::Abs(Tiles[Tile1].X - Tiles[Tile2].X) +
 		FMath::Abs(Tiles[Tile1].Y - Tiles[Tile2].Y);
+}
+
+FHitResult AGridManagerActor::CheckForObstruction(int StartTile, int EndTile)
+{
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+
+	FVector traceStart = FVector(Tiles[StartTile].Location.X, Tiles[StartTile].Location.Y,5.f);
+	FVector traceEnd = FVector(Tiles[EndTile].Location.X, Tiles[EndTile].Location.Y, 5.f);
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, traceStart, traceEnd, ObstructionChannel, CollisionParams);
+	if (HitResult.bBlockingHit)
+		DrawDebugLine(GetWorld(), traceStart, HitResult.Location, FColor::Green, false);
+	else
+		DrawDebugLine(GetWorld(), traceStart, traceEnd, FColor::Red, false);
+	return HitResult;
 }

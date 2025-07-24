@@ -35,6 +35,9 @@ public:
 	UPROPERTY()
 	TArray<FSkillDefinition> Skills;
 
+	UPROPERTY(EditAnywhere)
+	TMap<DamageElements, int> DamageResistanceMap;
+
 	UPROPERTY()
 	int CurrentTile;
 	UPROPERTY()
@@ -47,6 +50,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void Initialize();
+
 	virtual float TakeDamage(float DamageAmount,struct FDamageEvent const& DamageEvent,class AController* EventInstigator,AActor* DamageCauser)override;
 
 	void UseSkill(FSkillDefinition skillUsed, int targetedTile);
