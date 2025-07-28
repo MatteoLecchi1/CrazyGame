@@ -22,9 +22,9 @@ void AGameplayCharacter::BeginPlay()
 void AGameplayCharacter::Initialize()
 {
 	Grid = Cast<AGridManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass()));
-	int newTile = Grid->GetTileAtLocation(GetActorLocation());
+	FInt32Vector2 newTile = Grid->GetTileAtLocation(GetActorLocation());
 
-	if (newTile < 0) //invalid tile
+	if (newTile.X < 0) //invalid tile
 	{
 		Destroy();
 		return;
@@ -62,13 +62,16 @@ float AGameplayCharacter::TakeDamage(float DamageAmount, struct FDamageEvent con
 
 void AGameplayCharacter::OnDeath() 
 {
-	Grid->Tiles[CurrentTile].Occupant = nullptr;
+	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(CurrentTile);
+	targetedTileDefinition->Occupant = nullptr;
 	Destroy();
 }
 
-void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, int targetedTile)
+void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile)
 {
-	if (!Grid->Tiles[targetedTile].Occupant)
+	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(targetedTile);
+
+	if (!targetedTileDefinition->Occupant)
 		return;
 
 	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
@@ -79,7 +82,7 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, int targetedTile)
 	if (Grid->CheckForObstruction(CurrentTile, targetedTile).bBlockingHit)
 		return;
 
-	AActor* targetedActor = Grid->Tiles[targetedTile].Occupant;
+	AActor* targetedActor = targetedTileDefinition->Occupant;
 
 	for (auto damageInstance : skillUsed.Damage) 
 	{
@@ -87,23 +90,30 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, int targetedTile)
 	}
 }
 
-void AGameplayCharacter::WalkToTile(int targetedTile)
+void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile)
 {
 	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
 
 	if (distance > MovementSpeed)
 		return;
 
+	FHitResult HitResult = Grid->CheckForObstruction(CurrentTile, targetedTile);
+	if (HitResult.bBlockingHit)
+		return;
+
 	MoveToTile(targetedTile);
 }
 
-void AGameplayCharacter::MoveToTile(int targetedTile)
+void AGameplayCharacter::MoveToTile(FInt32Vector2 targetedTile)
 {
-	Grid->Tiles[CurrentTile].Occupant = nullptr;
-	Grid->Tiles[targetedTile].Occupant = this;
+	FTileDefinition* currentTileDefinition = Grid->GetTileDefinition(CurrentTile);
+	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(targetedTile);
+
+	currentTileDefinition->Occupant = nullptr;
+	targetedTileDefinition->Occupant = this;
 
 	CurrentTile = targetedTile;
-	SetActorLocation(Grid->Tiles[CurrentTile].Location);
+	SetActorLocation(targetedTileDefinition->Location);
 }
 
 void AGameplayCharacter::AddSkill(FName SkillKey, UCrazyGameInstance* GameInstance)

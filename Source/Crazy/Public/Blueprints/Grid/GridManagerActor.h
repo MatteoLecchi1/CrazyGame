@@ -31,7 +31,7 @@ public:
 	TEnumAsByte<ECollisionChannel> ObstructionChannel = ECC_Pawn;
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FTileDefinition> Tiles;
+	TMap<FInt32Vector2,FTileDefinition> Tiles;
 
 protected:
 	// Called when the game starts or when spawned
@@ -43,7 +43,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)
 	void SpawnGrid(int TilesX, int TilesY);
-	int GetTileAtLocation(FVector location);
-	int CalculateDistance(int Tile1, int Tile2);
-	FHitResult CheckForObstruction(int StartTile, int EndTile);
+	FInt32Vector2 GetTileAtLocation(FVector location);
+	int CalculateDistance(FInt32Vector2 Tile1, FInt32Vector2 Tile2);
+	FHitResult CheckForObstruction(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
+	FTileDefinition* GetTileDefinition(FInt32Vector2 TileKey);
 };

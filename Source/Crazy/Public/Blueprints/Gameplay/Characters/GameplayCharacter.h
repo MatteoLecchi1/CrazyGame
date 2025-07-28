@@ -39,7 +39,7 @@ public:
 	TMap<DamageElements, int> DamageResistanceMap;
 
 	UPROPERTY()
-	int CurrentTile;
+	FInt32Vector2 CurrentTile;
 	UPROPERTY()
 	AGridManagerActor* Grid;
 
@@ -54,9 +54,9 @@ public:
 
 	virtual float TakeDamage(float DamageAmount,struct FDamageEvent const& DamageEvent,class AController* EventInstigator,AActor* DamageCauser)override;
 
-	void UseSkill(FSkillDefinition skillUsed, int targetedTile);
-	void WalkToTile(int targetedTile);
-	void MoveToTile(int targetedTile);
+	void UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile);
+	void WalkToTile(FInt32Vector2 targetedTile);
+	void MoveToTile(FInt32Vector2 targetedTile);
 
 	void AddSkill(FName SkillKey, UCrazyGameInstance* GameInstance);
 	void OnDeath();

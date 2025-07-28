@@ -40,7 +40,7 @@ public:
 	UPROPERTY()
 	AGridManagerActor* Grid;
 	UPROPERTY()
-	int HoveredTile;
+	FInt32Vector2 HoveredTile;
 
 	UPROPERTY(EditAnywhere, Category = "UI|HoveredTile")
 	TSubclassOf<AActor> HoveredTileWidgetClass;

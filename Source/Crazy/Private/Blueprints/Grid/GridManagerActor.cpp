@@ -65,48 +65,52 @@ void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 			Spawntransform.SetLocation(FVector(TileXLocation, TileYLocation, 0.1f));
 			InstancedStaticMeshComponent->AddInstance(Spawntransform);
 
+			FInt32Vector2 newKey;
+			newKey.X = X;
+			newKey.Y = Y;
+
 			FTileDefinition newTile;
-			newTile.X = X;
-			newTile.Y = Y;
 			newTile.Location = GetActorTransform().TransformPosition(Spawntransform.GetLocation());
 
-			Tiles.Add(newTile);
+			Tiles.Add(newKey,newTile);
 		}
 	}
 }
 
-int AGridManagerActor::GetTileAtLocation(FVector location)
+FInt32Vector2 AGridManagerActor::GetTileAtLocation(FVector location)
 {
 	FVector localLocation = GetActorTransform().InverseTransformPosition(location);
 
-	int X = FMath::RoundToInt(localLocation.X / TileSize);
-	int Y = FMath::RoundToInt(localLocation.Y / TileSize);
+	FInt32Vector2 TileKey;
+	TileKey.X = FMath::RoundToInt(localLocation.X / TileSize);
+	TileKey.Y = FMath::RoundToInt(localLocation.Y / TileSize);
 
-	for (int i = 0; i < Tiles.Num(); i++)
-	{
-		if (Tiles[i].X == X && Tiles[i].Y == Y)
-		{
-			//DrawDebugSphere(GetWorld(), tile.Location, 40, 10, FColor::Red, false, 0.1);
-			return i;
-		}
-	}
-	return -1;
+	if (GetTileDefinition(TileKey))
+		return TileKey;
+
+	TileKey.X = -1;
+	TileKey.Y = -1;
+
+	return TileKey;
 }
 
-int AGridManagerActor::CalculateDistance(int Tile1, int Tile2)
+int AGridManagerActor::CalculateDistance(FInt32Vector2 Tile1, FInt32Vector2 Tile2)
 {
 	return
-		FMath::Abs(Tiles[Tile1].X - Tiles[Tile2].X) +
-		FMath::Abs(Tiles[Tile1].Y - Tiles[Tile2].Y);
+		FMath::Abs(Tile1.X - Tile2.X) +
+		FMath::Abs(Tile1.Y - Tile2.Y);
 }
 
-FHitResult AGridManagerActor::CheckForObstruction(int StartTile, int EndTile)
+FHitResult AGridManagerActor::CheckForObstruction(FInt32Vector2 StartTile, FInt32Vector2 EndTile)
 {
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
 
-	FVector traceStart = FVector(Tiles[StartTile].Location.X, Tiles[StartTile].Location.Y,5.f);
-	FVector traceEnd = FVector(Tiles[EndTile].Location.X, Tiles[EndTile].Location.Y, 5.f);
+	FTileDefinition* startTileDefinition = GetTileDefinition(StartTile);
+	FTileDefinition* endTileDefinition = GetTileDefinition(EndTile);
+
+	FVector traceStart = FVector(startTileDefinition->Location.X, startTileDefinition->Location.Y,5.f);
+	FVector traceEnd = FVector(endTileDefinition->Location.X, endTileDefinition->Location.Y, 5.f);
 
 	GetWorld()->LineTraceSingleByChannel(HitResult, traceStart, traceEnd, ObstructionChannel, CollisionParams);
 	if (HitResult.bBlockingHit)
@@ -114,4 +118,14 @@ FHitResult AGridManagerActor::CheckForObstruction(int StartTile, int EndTile)
 	else
 		DrawDebugLine(GetWorld(), traceStart, traceEnd, FColor::Red, false);
 	return HitResult;
+}
+
+FTileDefinition* AGridManagerActor::GetTileDefinition(FInt32Vector2 TileKey)
+{
+	if (Tiles.Contains(TileKey))
+	{
+		return &(Tiles[TileKey]);
+	}
+
+	return nullptr;
 }

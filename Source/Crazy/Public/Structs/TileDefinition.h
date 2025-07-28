@@ -40,27 +40,9 @@ enum class Factions : uint8
 };
 
 USTRUCT(BlueprintType)
-struct CRAZY_API Fint2DVector : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int X = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Y = 0;
-};
-
-USTRUCT(BlueprintType)
 struct CRAZY_API FTileDefinition : public FTableRowBase
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int X = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Y = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector Location;

@@ -53,9 +53,9 @@ void APlayerPawn::UpdateHoveredTile()
 	if (!CursorHit.bBlockingHit)
 		return;
 
-	int newTile = Grid->GetTileAtLocation(CursorHit.Location);
+	FInt32Vector2 newTile = Grid->GetTileAtLocation(CursorHit.Location);
 	
-	if (newTile < 0)
+	if (newTile.X < 0)
 		return;
 	if (newTile == HoveredTile)
 		return;
@@ -63,7 +63,10 @@ void APlayerPawn::UpdateHoveredTile()
 	HoveredTile = newTile;
 
 	if(HoveredTileWidget)
-	HoveredTileWidget->SetActorLocation(Grid->Tiles[HoveredTile].Location);
+	{
+		FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
+		HoveredTileWidget->SetActorLocation(hoveredTileDefinition->Location);
+	}
 }
 
 void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -94,9 +97,10 @@ void APlayerPawn::ManageInputCameraZoom(float input)
 }
 void APlayerPawn::ManageInputInteraction1()
 {
-	if (Grid->Tiles[HoveredTile].Occupant)
+	FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
+	if (hoveredTileDefinition->Occupant)
 	{
-		AGameplayCharacter* targetedCharacter = Cast<AGameplayCharacter>(Grid->Tiles[HoveredTile].Occupant);
+		AGameplayCharacter* targetedCharacter = Cast<AGameplayCharacter>(hoveredTileDefinition->Occupant);
 		if (SelectedSkillIndex < 0) 
 		{
 			if (targetedCharacter->Faction == Factions::PLAYER)
