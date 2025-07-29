@@ -7,6 +7,8 @@
 #include "Blueprints/Grid/GridManagerActor.h"
 #include "Structs/TileDefinition.h"
 #include "Blueprints/Core/CrazyGameInstance.h"
+#include "Blueprints/UI/CharacterWidget.h"
+#include "Components/WidgetComponent.h"
 #include "GameplayCharacter.generated.h"
 
 UCLASS()
@@ -42,6 +44,9 @@ public:
 	FInt32Vector2 CurrentTile;
 	UPROPERTY()
 	AGridManagerActor* Grid;
+
+	UPROPERTY()
+	UCharacterWidget* CharacterWidget;
 
 protected:
 	// Called when the game starts or when spawned

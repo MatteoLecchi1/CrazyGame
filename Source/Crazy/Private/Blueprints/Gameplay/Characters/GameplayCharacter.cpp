@@ -40,6 +40,10 @@ void AGameplayCharacter::Initialize()
 	{
 		AddSkill(key, GameInstance);
 	}
+
+	auto widget = Cast<UWidgetComponent>(GetComponentByClass<UWidgetComponent>());
+	CharacterWidget = Cast<UCharacterWidget>(widget->GetWidget());
+	CharacterWidget->UpdateHPValues(CurrentHP, MaxHP);
 }
 
 // Called every frame
@@ -50,13 +54,25 @@ void AGameplayCharacter::Tick(float DeltaTime)
 
 float AGameplayCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) 
 {
-	DamageAmount -= Armor;
-	CurrentHP = CurrentHP - DamageAmount;
+
+	float PostMultiplierDamage = FMath::Clamp(
+		(DamageAmount - Armor) * 1, 
+		0,
+		99999);//fix this shit
+
+	int totalDamage = FMath::TruncToInt(PostMultiplierDamage);
+
+	CurrentHP = CurrentHP - totalDamage;
+	if(CharacterWidget)
+	{
+		CharacterWidget->UpdateHPValues(CurrentHP, MaxHP);
+	}
 
 	if (CurrentHP <= 0)
 	{
 		OnDeath();
 	}
+
 	return DamageAmount;
 }
 
