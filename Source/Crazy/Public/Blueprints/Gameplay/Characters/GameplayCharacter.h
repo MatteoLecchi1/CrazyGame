@@ -9,6 +9,7 @@
 #include "Blueprints/Core/CrazyGameInstance.h"
 #include "Blueprints/UI/CharacterWidget.h"
 #include "Components/WidgetComponent.h"
+#include "Blueprints/Core/GameplayPawn.h"
 #include "GameplayCharacter.generated.h"
 
 UCLASS()
@@ -28,6 +29,8 @@ public:
 	int Armor = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MovementSpeed = 0;
+	UPROPERTY()
+	int CurrentMovement = 0;
 
 	UPROPERTY(EditAnywhere)
 	Factions Faction;
@@ -59,10 +62,11 @@ public:
 
 	virtual float TakeDamage(float DamageAmount,struct FDamageEvent const& DamageEvent,class AController* EventInstigator,AActor* DamageCauser)override;
 
-	void UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile);
-	void WalkToTile(FInt32Vector2 targetedTile);
+	void UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn);
+	void WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn);
 	void MoveToTile(FInt32Vector2 targetedTile);
 
 	void AddSkill(FName SkillKey, UCrazyGameInstance* GameInstance);
+	void OnTurnStart();
 	void OnDeath();
 };

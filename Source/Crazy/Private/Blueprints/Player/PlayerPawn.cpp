@@ -17,18 +17,20 @@ APlayerPawn::APlayerPawn()
 void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
 	Initialize();
 }
 void APlayerPawn::Initialize()
 {
+	Super::Initialize();
+
 	MainCamera = Cast<UCameraComponent>(GetComponentsByTag(UCameraComponent::StaticClass(), "MainCamera")[0]);
 	targetCameraZoom = MainCamera->OrthoWidth;
 
-	Grid = Cast<AGridManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass()));
-
 	if (HoveredTileWidgetClass)
 		HoveredTileWidget = GetWorld()->SpawnActor<AActor>(HoveredTileWidgetClass, FVector(0.f, 0.f, 9999999.f), GetActorRotation());
-	SetActorTickEnabled(true);
+
+	GameMode->PlayerPawn = this;
 }
 
 // Called every frame
@@ -69,6 +71,17 @@ void APlayerPawn::UpdateHoveredTile()
 	}
 }
 
+void APlayerPawn::EndTurn()
+{
+	GameMode->GiveTurnToEnemy();
+}
+
+void APlayerPawn::SetAP(int APAmmount)
+{
+	Super::SetAP(APAmmount);
+	HUDInstance->UpdateAPValues(CurrentAP, MaxAP);
+}
+
 void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -78,17 +91,16 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	InputComponent->BindAxis("CameraZoom", this, &APlayerPawn::ManageInputCameraZoom);
 	InputComponent->BindAction("Interact1", IE_Pressed, this, &APlayerPawn::ManageInputInteraction1);
 	InputComponent->BindAction("Interact2", IE_Pressed, this, &APlayerPawn::ManageInputInteraction2);
+	InputComponent->BindAction("EndTurn", IE_Pressed, this, &APlayerPawn::ManageInputEndTurn);
 }
 void APlayerPawn::ManageInputCameraX(float input)
 {
 	AddActorWorldOffset(FVector(input * cameraXSpeed, 0, 0));
 }
-
 void APlayerPawn::ManageInputCameraY(float input)
 {
 	AddActorWorldOffset(FVector(0, input * cameraYSpeed, 0));
 }
-
 void APlayerPawn::ManageInputCameraZoom(float input)
 {
 	targetCameraZoom += input * cameraZoomSpeed;
@@ -105,6 +117,7 @@ void APlayerPawn::ManageInputInteraction1()
 		{
 			if (targetedCharacter->Faction == Factions::PLAYER)
 			{
+				//selected a friendly character
 				if (SelectedCharacter == targetedCharacter)
 					return;
 
@@ -117,10 +130,8 @@ void APlayerPawn::ManageInputInteraction1()
 		{
 			if (!SelectedCharacter)
 				return;
-			if (Grid->CheckForObstruction(SelectedCharacter->CurrentTile, HoveredTile).bBlockingHit)
-				return;
 
-			SelectedCharacter->UseSkill(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile);
+			SelectedCharacter->UseSkill(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile,this);
 		}
 	}
 	else
@@ -130,7 +141,7 @@ void APlayerPawn::ManageInputInteraction1()
 		if (SelectedSkillIndex >= 0)
 			return;
 
-		SelectedCharacter->WalkToTile(HoveredTile);
+		SelectedCharacter->WalkToTile(HoveredTile,this);
 	}
 }
 void APlayerPawn::ManageInputInteraction2()
@@ -147,3 +158,8 @@ void APlayerPawn::ManageInputInteraction2()
 		HUDInstance->UpdateSkillList(EmptySkills);
 	}
 }
+void APlayerPawn::ManageInputEndTurn() 
+{
+	EndTurn();
+}
+

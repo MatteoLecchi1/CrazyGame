@@ -11,6 +11,5 @@ void UCharacterWidget::UpdateHPValues(int currentHP, int maxHP)
 	newTextString.AppendInt(maxHP);
 
 	FText newText = FText::FromString(newTextString);
-	//TextBox->Text = newText;
 	TextBox->SetText(newText);
 }

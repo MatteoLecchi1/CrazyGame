@@ -46,7 +46,7 @@ struct CRAZY_API FTileDefinition : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector Location;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AActor* Occupant = nullptr;
 
@@ -84,4 +84,6 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	int MinRange = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MaxRange = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int APCost = 1;
 };

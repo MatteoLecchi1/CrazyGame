@@ -6,7 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "Structs/TileDefinition.h"
 #include "Blueprints/Grid/GridManagerActor.h"
-#include "Blueprints/UI/SkillListEntry.h"
 #include "GameplayGameMode.generated.h"
 
 /**
@@ -16,5 +15,14 @@ UCLASS()
 class CRAZY_API AGameplayGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
+public:
+	UPROPERTY()
+	class APlayerPawn* PlayerPawn;
+	UPROPERTY()
+	TArray<class AGameplayCharacter*> PlayersCharacters;
+
+	void GiveTurnToPlayer();
+	void GiveTurnToEnemy();
+
 };

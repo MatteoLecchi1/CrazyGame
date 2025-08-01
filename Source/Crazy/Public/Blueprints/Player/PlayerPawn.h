@@ -3,16 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "Blueprints/Core/GameplayPawn.h"
 #include "Camera/CameraComponent.h"
 #include "Structs/TileDefinition.h"
-#include "Blueprints/Grid/GridManagerActor.h"
 #include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
 #include "Blueprints/UI/HUDWidget.h"
 #include "PlayerPawn.generated.h"
 
 UCLASS()
-class CRAZY_API APlayerPawn : public APawn
+class CRAZY_API APlayerPawn : public AGameplayPawn
 {
 	GENERATED_BODY()
 
@@ -38,26 +37,26 @@ public:
 	float targetCameraZoom;
 
 	UPROPERTY()
-	AGridManagerActor* Grid;
-	UPROPERTY()
 	FInt32Vector2 HoveredTile;
+	UPROPERTY(EditAnywhere, Category = "UI|HoveredTile")
+	TEnumAsByte<ETraceTypeQuery> TileTraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 
+	//UI
 	UPROPERTY(EditAnywhere, Category = "UI|HoveredTile")
 	TSubclassOf<AActor> HoveredTileWidgetClass;
 	UPROPERTY()
 	AActor* HoveredTileWidget;
+	UPROPERTY()
+	UHUDWidget* HUDInstance;
 	
-	UPROPERTY(EditAnywhere, Category = "UI|HoveredTile")
-	TEnumAsByte<ETraceTypeQuery> TileTraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 
 	UPROPERTY(VisibleAnywhere)
 	AGameplayCharacter* SelectedCharacter;
 	UPROPERTY(VisibleAnywhere)
 	int SelectedSkillIndex = -1;
 
-	//UI
 	UPROPERTY()
-	UHUDWidget* HUDInstance;
+	bool PlayersTurn = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -66,18 +65,21 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void Initialize();
+	void Initialize() override;
 
 	void ManageCamera(float DeltaTime);
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
 
 	void UpdateHoveredTile();
+	void EndTurn();
+	void SetAP(int APAmmount) override;
 
 	void ManageInputCameraX(float input);
 	void ManageInputCameraY(float input);
 	void ManageInputCameraZoom(float input);
 	void ManageInputInteraction1();
 	void ManageInputInteraction2();
+	void ManageInputEndTurn();
 
 };

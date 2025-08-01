@@ -114,9 +114,9 @@ FHitResult AGridManagerActor::CheckForObstruction(FInt32Vector2 StartTile, FInt3
 
 	GetWorld()->LineTraceSingleByChannel(HitResult, traceStart, traceEnd, ObstructionChannel, CollisionParams);
 	if (HitResult.bBlockingHit)
-		DrawDebugLine(GetWorld(), traceStart, HitResult.Location, FColor::Green, false);
+		DrawDebugLine(GetWorld(), traceStart, HitResult.Location, FColor::Red, false,1.f);
 	else
-		DrawDebugLine(GetWorld(), traceStart, traceEnd, FColor::Red, false);
+		DrawDebugLine(GetWorld(), traceStart, traceEnd, FColor::Green, false,1.f);
 	return HitResult;
 }
 

@@ -44,6 +44,18 @@ void AGameplayCharacter::Initialize()
 	auto widget = Cast<UWidgetComponent>(GetComponentByClass<UWidgetComponent>());
 	CharacterWidget = Cast<UCharacterWidget>(widget->GetWidget());
 	CharacterWidget->UpdateHPValues(CurrentHP, MaxHP);
+
+	AGameplayGameMode* GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
+	switch (Faction)
+	{
+
+	case Factions::PLAYER:
+		GameMode->PlayersCharacters.Add(this);
+		break;
+
+	default:
+		break;
+	}
 }
 
 // Called every frame
@@ -83,8 +95,11 @@ void AGameplayCharacter::OnDeath()
 	Destroy();
 }
 
-void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile)
+void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn)
 {
+	if (skillUsed.APCost > InstigatorPawn->CurrentAP)
+		return;
+
 	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(targetedTile);
 
 	if (!targetedTileDefinition->Occupant)
@@ -104,13 +119,15 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targ
 	{
 		UGameplayStatics::ApplyDamage(targetedActor, damageInstance.DamageAmount, UGameplayStatics::GetPlayerController(GetWorld(), 0), this, nullptr);
 	}
+
+	InstigatorPawn->SetAP(InstigatorPawn->CurrentAP - skillUsed.APCost);
 }
 
-void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile)
+void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn)
 {
 	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
 
-	if (distance > MovementSpeed)
+	if (distance > CurrentMovement + MovementSpeed * InstigatorPawn->CurrentAP)
 		return;
 
 	FHitResult HitResult = Grid->CheckForObstruction(CurrentTile, targetedTile);
@@ -118,6 +135,14 @@ void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile)
 		return;
 
 	MoveToTile(targetedTile);
+	
+	CurrentMovement -= distance;
+	if(CurrentMovement < 0)
+	{
+		int APUsed = FMath::DivideAndRoundUp(abs(CurrentMovement), MovementSpeed);
+		CurrentMovement += MovementSpeed * APUsed;
+		InstigatorPawn->SetAP(InstigatorPawn->CurrentAP - APUsed);
+	}
 }
 
 void AGameplayCharacter::MoveToTile(FInt32Vector2 targetedTile)
@@ -135,4 +160,9 @@ void AGameplayCharacter::MoveToTile(FInt32Vector2 targetedTile)
 void AGameplayCharacter::AddSkill(FName SkillKey, UCrazyGameInstance* GameInstance)
 {
 	Skills.Add(GameInstance->GetSkillFromKey(SkillKey));
+}
+
+void AGameplayCharacter::OnTurnStart()
+{
+	CurrentMovement = MovementSpeed;
 }

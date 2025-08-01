@@ -7,6 +7,7 @@
 #include "Structs/TileDefinition.h"
 #include "Blueprints/Grid/GridManagerActor.h"
 #include "Blueprints/UI/SkillListEntry.h"
+#include "Components/TextBlock.h"
 #include "HUDWidget.generated.h"
 
 /**
@@ -21,9 +22,13 @@ public:
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UListView* SkillList;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* APTextBox;
 
 	UFUNCTION()
 	void UpdateSkillList(TArray<FSkillDefinition> Skills);
+	UFUNCTION()
+	void UpdateAPValues(int currentAP, int maxAP);
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateSelectedSkill();

@@ -26,3 +26,13 @@ void UHUDWidget::UpdateSelectedSkill()
 		playerpawn->SelectedSkillIndex = SelectedSkillItem->ListIndex;
 	}
 }
+void UHUDWidget::UpdateAPValues(int currentAP, int maxAP) 
+{
+	FString newTextString = "";
+	newTextString.AppendInt(currentAP);
+	newTextString.Append("/");
+	newTextString.AppendInt(maxAP);
+
+	FText newText = FText::FromString(newTextString);
+	APTextBox->SetText(newText);
+}
