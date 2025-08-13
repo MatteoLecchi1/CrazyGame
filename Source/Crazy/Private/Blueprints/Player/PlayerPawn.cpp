@@ -41,6 +41,7 @@ void APlayerPawn::Tick(float DeltaTime)
 
 	ManageCamera(DeltaTime);
 	UpdateHoveredTile();
+	UpdateStateVisuals();
 }
 
 void APlayerPawn::ManageCamera(float DeltaTime)
@@ -72,9 +73,75 @@ void APlayerPawn::UpdateHoveredTile()
 	}
 }
 
+void APlayerPawn::UpdateStateVisuals()
+{
+	switch (SelectionState)
+	{
+	case PlayerSelectionState::NONE:
+		break;
+	case PlayerSelectionState::FRIENDLYCHARACTER:
+		break;
+	case PlayerSelectionState::SKILL:
+		UpdateSKILLStateVisuals();
+		break;
+	default:
+		break;
+	}
+}
+void APlayerPawn::UpdateSKILLStateVisuals() 
+{
+	FSkillDefinition currentSkill = SelectedCharacter->Skills[SelectedSkillIndex];
+	int maxRange = currentSkill.MaxRange;
+	int minRange = currentSkill.MinRange;
+	int Distance = Grid->CalculateDistance(SelectedCharacter->CurrentTile, HoveredTile);
+
+	FHitResult HitResult;
+	FColor traceColor = FColor::Green;
+
+	FVector traceStart = Grid->GetTileDefinition(SelectedCharacter->CurrentTile)->Location;
+	FVector traceEnd = Grid->GetTileDefinition(HoveredTile)->Location;
+
+	if (Distance <= maxRange + 0.1f && Distance >= minRange - 0.1f)
+	{
+		HitResult = Grid->CheckForObstructionBetweenLocations(traceStart, traceEnd);
+	}
+	else if (Distance <= minRange - 0.1f)
+	{
+		traceColor = FColor::Red;
+		HitResult = Grid->CheckForObstructionBetweenLocations(traceStart, traceEnd);
+	}
+	else
+	{
+		traceColor = FColor::Red;
+
+		float X = traceEnd.X - traceStart.X;
+		float Y = traceEnd.Y - traceStart.Y;
+		float lenght = sqrt(pow(X, 2.f) + pow(Y, 2.f));
+		lenght = lenght / Distance * maxRange;
+
+		traceEnd -= traceStart;
+		traceEnd.Normalize();
+		traceEnd *= lenght;
+		traceEnd += traceStart;
+
+		HitResult = Grid->CheckForObstructionBetweenLocations(traceStart, traceEnd);
+	}
+
+	if (HitResult.bBlockingHit)
+	{
+		traceColor = FColor::Red;
+		DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.Location, traceColor, false, 0.f);
+	}
+	else
+	{
+		DrawDebugLine(GetWorld(), HitResult.TraceStart, traceEnd, traceColor, false, 0.f);
+	}
+}
+
 void APlayerPawn::EndTurn()
 {
 	SelectionState = PlayerSelectionState::NONE;
+	SelectedSkillIndex = -1;
 	TArray<FSkillDefinition> EmptySkills;
 	HUDInstance->UpdateSkillList(EmptySkills);
 

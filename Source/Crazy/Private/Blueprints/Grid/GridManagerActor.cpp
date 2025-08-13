@@ -130,10 +130,18 @@ FHitResult AGridManagerActor::CheckForObstruction(FInt32Vector2 StartTile, FInt3
 	FVector traceEnd = FVector(endTileDefinition->Location.X, endTileDefinition->Location.Y, 5.f);
 
 	GetWorld()->LineTraceSingleByChannel(HitResult, traceStart, traceEnd, ObstructionChannel, CollisionParams);
-	if (HitResult.bBlockingHit)
-		DrawDebugLine(GetWorld(), traceStart, HitResult.Location, FColor::Red, false,1.f);
-	else
-		DrawDebugLine(GetWorld(), traceStart, traceEnd, FColor::Green, false,1.f);
+
+	return HitResult;
+}
+FHitResult AGridManagerActor::CheckForObstructionBetweenLocations(FVector traceStart, FVector traceEnd)
+{
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+
+	traceStart.Z = 5.f;
+	traceEnd.Z = 5.f;
+	GetWorld()->LineTraceSingleByChannel(HitResult, traceStart, traceEnd, ObstructionChannel, CollisionParams);
+
 	return HitResult;
 }
 

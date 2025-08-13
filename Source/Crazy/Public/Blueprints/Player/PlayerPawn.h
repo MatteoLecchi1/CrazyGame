@@ -74,6 +74,9 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
 
 	void UpdateHoveredTile();
+	void UpdateStateVisuals();
+	void UpdateSKILLStateVisuals();
+
 	void EndTurn();
 	void SetAP(int APAmmount) override;
 

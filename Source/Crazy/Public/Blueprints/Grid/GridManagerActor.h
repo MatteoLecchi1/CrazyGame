@@ -51,6 +51,7 @@ public:
 	FInt32Vector2 GetTileAtLocation(FVector location);
 	int CalculateDistance(FInt32Vector2 Tile1, FInt32Vector2 Tile2);
 	FHitResult CheckForObstruction(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
+	FHitResult CheckForObstructionBetweenLocations(FVector traceStart, FVector traceEnd);
 	FTileDefinition* GetTileDefinition(FInt32Vector2 TileKey);
 	TArray<FInt32Vector2> FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile); 
 	TArray<FInt32Vector2> GetValidTileNeighbors(FInt32Vector2 StartTile);
