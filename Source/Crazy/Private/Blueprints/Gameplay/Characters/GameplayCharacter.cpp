@@ -125,13 +125,19 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targ
 
 void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn)
 {
-	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
+	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
 
-	if (distance > CurrentMovement + MovementSpeed * InstigatorPawn->CurrentAP)
+	int distance = path.Num();
+	if (distance <= 0)
 		return;
 
-	FHitResult HitResult = Grid->CheckForObstruction(CurrentTile, targetedTile);
-	if (HitResult.bBlockingHit)
+	for (FInt32Vector2 tile : path)
+	{
+		FTileDefinition* tileDefinition = Grid->GetTileDefinition(tile);
+		DrawDebugSphere(GetWorld(), tileDefinition->Location, 100, 10, FColor::Blue, false, 1);
+	}
+
+	if (distance > CurrentMovement + MovementSpeed * InstigatorPawn->CurrentAP)
 		return;
 
 	MoveToTile(targetedTile);

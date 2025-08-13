@@ -155,15 +155,7 @@ void APlayerPawn::Interaction1FRIENDLYCHARACTER()
 	if (hoveredTileDefinition->Occupant)
 		return;
 
-	TArray<FInt32Vector2> path = Grid->FindPath(SelectedCharacter->CurrentTile, HoveredTile);
-
 	SelectedCharacter->WalkToTile(HoveredTile, this);
-
-	for (FInt32Vector2 tile : path) 
-	{
-		FTileDefinition* tileDefinition = Grid->GetTileDefinition(tile);
-		DrawDebugSphere(GetWorld(), tileDefinition->Location, 100, 10, FColor::Blue, true, 5);
-	}
 }
 void APlayerPawn::Interaction1SKILL()
 {
