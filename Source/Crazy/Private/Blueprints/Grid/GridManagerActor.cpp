@@ -4,6 +4,7 @@
 #include "Blueprints/Grid/GridManagerActor.h"
 #include "Chaos/DebugDrawQueue.h"
 #include "DrawDebugHelpers.h"
+#include "Blueprints/Grid/PathFindingActor.h"
 
 // Sets default values
 AGridManagerActor::AGridManagerActor()
@@ -19,6 +20,13 @@ AGridManagerActor::AGridManagerActor()
 void AGridManagerActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	PathFindingActor = GetWorld()->SpawnActor<APathFindingActor>();
+	PathFindingActor->GridManager = this;
+
+	SetCardinalDirections();
 }
 void AGridManagerActor::OnConstruction(const FTransform& Transform)
 {
@@ -77,6 +85,15 @@ void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 	}
 }
 
+void AGridManagerActor::SetCardinalDirections() 
+{
+	CardinalDirections.Empty();
+	CardinalDirections.Add(FInt32Vector2(0, 1));
+	CardinalDirections.Add(FInt32Vector2(0, -1));
+	CardinalDirections.Add(FInt32Vector2(1, 0));
+	CardinalDirections.Add(FInt32Vector2(-1, 0));
+}
+
 FInt32Vector2 AGridManagerActor::GetTileAtLocation(FVector location)
 {
 	FVector localLocation = GetActorTransform().InverseTransformPosition(location);
@@ -128,4 +145,38 @@ FTileDefinition* AGridManagerActor::GetTileDefinition(FInt32Vector2 TileKey)
 	}
 
 	return nullptr;
+}
+
+TArray<FInt32Vector2> AGridManagerActor::FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile) 
+{
+	return PathFindingActor->FindPath(StartTile, EndTile);
+}
+
+TArray<FInt32Vector2> AGridManagerActor::GetValidTileNeighbors(FInt32Vector2 StartTile)
+{
+	TArray<FInt32Vector2> TilesFound;
+	for (auto direction : CardinalDirections)
+	{
+		direction += StartTile;
+		if (GetTileDefinition(direction))
+			TilesFound.Add(direction);
+	}
+	return TilesFound;
+}
+TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData(FInt32Vector2 StartTile)
+{
+	TArray<FPathFindingData> TilesFound;
+	for (auto direction : CardinalDirections)
+	{
+		direction += StartTile;
+		if (GetTileDefinition(direction))
+		{
+			FPathFindingData TileDataFound;
+			TileDataFound.Index = direction;
+			TileDataFound.PreviousIndex = StartTile;
+			TileDataFound.CostToEnterTile = 1;
+			TilesFound.Add(TileDataFound);
+		}
+	}
+	return TilesFound;
 }

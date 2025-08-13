@@ -48,6 +48,8 @@ public:
 	AActor* HoveredTileWidget;
 	UPROPERTY()
 	UHUDWidget* HUDInstance;
+	UPROPERTY()
+	PlayerSelectionState SelectionState = PlayerSelectionState::NONE;
 	
 
 	UPROPERTY(VisibleAnywhere)
@@ -82,4 +84,8 @@ public:
 	void ManageInputInteraction2();
 	void ManageInputEndTurn();
 
+
+	void Interaction1NONE();
+	void Interaction1FRIENDLYCHARACTER(); 
+	void Interaction1SKILL();
 };

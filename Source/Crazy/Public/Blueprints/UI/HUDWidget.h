@@ -24,9 +24,10 @@ public:
 	class UListView* SkillList;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UTextBlock* APTextBox;
-
 	UFUNCTION()
 	void UpdateSkillList(TArray<FSkillDefinition> Skills);
+	UFUNCTION()
+	void UpdateSkillListVisuals();
 	UFUNCTION()
 	void UpdateAPValues(int currentAP, int maxAP);
 

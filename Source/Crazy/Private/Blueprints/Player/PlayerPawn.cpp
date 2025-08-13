@@ -4,6 +4,7 @@
 #include "Blueprints/Player/PlayerPawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Chaos/DebugDrawQueue.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -73,6 +74,10 @@ void APlayerPawn::UpdateHoveredTile()
 
 void APlayerPawn::EndTurn()
 {
+	SelectionState = PlayerSelectionState::NONE;
+	TArray<FSkillDefinition> EmptySkills;
+	HUDInstance->UpdateSkillList(EmptySkills);
+
 	GameMode->GiveTurnToEnemy();
 }
 
@@ -109,53 +114,86 @@ void APlayerPawn::ManageInputCameraZoom(float input)
 }
 void APlayerPawn::ManageInputInteraction1()
 {
-	FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
-	if (hoveredTileDefinition->Occupant)
+
+	switch (SelectionState)
 	{
-		AGameplayCharacter* targetedCharacter = Cast<AGameplayCharacter>(hoveredTileDefinition->Occupant);
-		if (SelectedSkillIndex < 0) 
-		{
-			if (targetedCharacter->Faction == Factions::PLAYER)
-			{
-				//selected a friendly character
-				if (SelectedCharacter == targetedCharacter)
-					return;
-
-				SelectedSkillIndex = -1;
-				SelectedCharacter = targetedCharacter;
-				HUDInstance->UpdateSkillList(SelectedCharacter->Skills);
-			}
-		}
-		else
-		{
-			if (!SelectedCharacter)
-				return;
-
-			SelectedCharacter->UseSkill(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile,this);
-		}
-	}
-	else
-	{
-		if (!SelectedCharacter)
-			return;
-		if (SelectedSkillIndex >= 0)
-			return;
-
-		SelectedCharacter->WalkToTile(HoveredTile,this);
+	case PlayerSelectionState::NONE:
+		Interaction1NONE();
+		break;
+	case PlayerSelectionState::FRIENDLYCHARACTER:
+		Interaction1FRIENDLYCHARACTER();
+		break;
+	case PlayerSelectionState::SKILL:
+		Interaction1SKILL();
+		break;
+	default:
+		break;
 	}
 }
-void APlayerPawn::ManageInputInteraction2()
+void APlayerPawn::Interaction1NONE()
 {
-	if(SelectedSkillIndex >= 0)
+	FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
+
+	if (!hoveredTileDefinition->Occupant)
+		return;
+
+	AGameplayCharacter* targetedCharacter = Cast<AGameplayCharacter>(hoveredTileDefinition->Occupant);
+	if (targetedCharacter->Faction == Factions::PLAYER)
 	{
 		SelectedSkillIndex = -1;
-	}
-	else
-	{
-		SelectedCharacter = nullptr;
+		HUDInstance->UpdateSkillListVisuals();
 
-		TArray<FSkillDefinition> EmptySkills;
+		SelectedCharacter = targetedCharacter;
+		HUDInstance->UpdateSkillList(SelectedCharacter->Skills);
+
+		SelectionState = PlayerSelectionState::FRIENDLYCHARACTER;
+	}
+}
+void APlayerPawn::Interaction1FRIENDLYCHARACTER()
+{
+	FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
+	if (hoveredTileDefinition->Occupant)
+		return;
+
+	TArray<FInt32Vector2> path = Grid->FindPath(SelectedCharacter->CurrentTile, HoveredTile);
+
+	SelectedCharacter->WalkToTile(HoveredTile, this);
+
+	for (FInt32Vector2 tile : path) 
+	{
+		FTileDefinition* tileDefinition = Grid->GetTileDefinition(tile);
+		DrawDebugSphere(GetWorld(), tileDefinition->Location, 100, 10, FColor::Blue, true, 5);
+	}
+}
+void APlayerPawn::Interaction1SKILL()
+{
+	FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
+	SelectedCharacter->UseSkill(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile, this);
+}
+
+void APlayerPawn::ManageInputInteraction2()
+{
+	TArray<FSkillDefinition> EmptySkills;
+
+	switch (SelectionState)
+	{
+	case PlayerSelectionState::NONE:
+		break;
+	case PlayerSelectionState::FRIENDLYCHARACTER:
+
 		HUDInstance->UpdateSkillList(EmptySkills);
+		SelectionState = PlayerSelectionState::NONE;
+
+		break;
+	case PlayerSelectionState::SKILL:
+
+		SelectedSkillIndex = -1;
+		HUDInstance->UpdateSkillListVisuals();
+		SelectionState = PlayerSelectionState::FRIENDLYCHARACTER;
+
+		break;
+	default:
+		break;
 	}
 }
 void APlayerPawn::ManageInputEndTurn() 

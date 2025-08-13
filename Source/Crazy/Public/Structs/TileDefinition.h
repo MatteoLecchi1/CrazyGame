@@ -38,6 +38,13 @@ enum class Factions : uint8
 	BANDITS = 1		UMETA(DisplayName = "BANDITS"),
 	MONSTERS = 2	UMETA(DisplayName = "MONSTERS"),
 };
+UENUM(BlueprintType)
+enum class PlayerSelectionState : uint8
+{
+	NONE = 0		UMETA(DisplayName = "NONE"),
+	FRIENDLYCHARACTER = 1		UMETA(DisplayName = "FRIENDLYCHARACTER"),
+	SKILL = 2	UMETA(DisplayName = "SKILL"),
+};
 
 USTRUCT(BlueprintType)
 struct CRAZY_API FTileDefinition : public FTableRowBase
@@ -86,4 +93,20 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	int MaxRange = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int APCost = 1;
+};
+USTRUCT(BlueprintType)
+struct CRAZY_API FPathFindingData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FInt32Vector2 Index = FInt32Vector2(-1,-1);
+	UPROPERTY()
+	int CostToEnterTile = 1;
+	UPROPERTY()
+	int CostFromStart = 999999;
+	UPROPERTY()
+	int MinimumCostToEnd = 999999;
+	UPROPERTY()
+	FInt32Vector2 PreviousIndex = FInt32Vector2(-1, -1);
 };

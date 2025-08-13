@@ -32,6 +32,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	TMap<FInt32Vector2,FTileDefinition> Tiles;
+	UPROPERTY()
+	class APathFindingActor* PathFindingActor;
+	UPROPERTY()
+	TArray<FInt32Vector2> CardinalDirections;
 
 protected:
 	// Called when the game starts or when spawned
@@ -43,8 +47,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)
 	void SpawnGrid(int TilesX, int TilesY);
+	void SetCardinalDirections();
 	FInt32Vector2 GetTileAtLocation(FVector location);
 	int CalculateDistance(FInt32Vector2 Tile1, FInt32Vector2 Tile2);
 	FHitResult CheckForObstruction(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
 	FTileDefinition* GetTileDefinition(FInt32Vector2 TileKey);
+	TArray<FInt32Vector2> FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile); 
+	TArray<FInt32Vector2> GetValidTileNeighbors(FInt32Vector2 StartTile);
+	TArray<FPathFindingData> GetValidTileNeighborsPathFindingData(FInt32Vector2 StartTile);
 };

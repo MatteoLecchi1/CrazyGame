@@ -70,7 +70,7 @@ float AGameplayCharacter::TakeDamage(float DamageAmount, struct FDamageEvent con
 	float PostMultiplierDamage = FMath::Clamp(
 		(DamageAmount - Armor) * 1, 
 		0,
-		99999);//fix this shit
+		99999.f);//fix this shit
 
 	int totalDamage = FMath::TruncToInt(PostMultiplierDamage);
 
@@ -150,7 +150,8 @@ void AGameplayCharacter::MoveToTile(FInt32Vector2 targetedTile)
 	FTileDefinition* currentTileDefinition = Grid->GetTileDefinition(CurrentTile);
 	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(targetedTile);
 
-	currentTileDefinition->Occupant = nullptr;
+	if(currentTileDefinition)
+		currentTileDefinition->Occupant = nullptr;
 	targetedTileDefinition->Occupant = this;
 
 	CurrentTile = targetedTile;

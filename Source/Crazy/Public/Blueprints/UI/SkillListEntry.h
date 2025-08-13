@@ -19,4 +19,5 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = UI)
 	int ListIndex;
+
 };
