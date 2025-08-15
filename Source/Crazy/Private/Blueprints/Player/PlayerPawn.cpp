@@ -41,7 +41,6 @@ void APlayerPawn::Tick(float DeltaTime)
 
 	ManageCamera(DeltaTime);
 	UpdateHoveredTile();
-	UpdateStateVisuals();
 }
 
 void APlayerPawn::ManageCamera(float DeltaTime)
@@ -71,6 +70,7 @@ void APlayerPawn::UpdateHoveredTile()
 		FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
 		HoveredTileWidget->SetActorLocation(hoveredTileDefinition->Location);
 	}
+	UpdateStateVisuals();
 }
 
 void APlayerPawn::UpdateStateVisuals()
@@ -80,6 +80,7 @@ void APlayerPawn::UpdateStateVisuals()
 	case PlayerSelectionState::NONE:
 		break;
 	case PlayerSelectionState::FRIENDLYCHARACTER:
+		UpdateFRIENDLYCHARACTERStateVisuals();
 		break;
 	case PlayerSelectionState::SKILL:
 		UpdateSKILLStateVisuals();
@@ -88,62 +89,112 @@ void APlayerPawn::UpdateStateVisuals()
 		break;
 	}
 }
+
+void APlayerPawn::UpdateFRIENDLYCHARACTERStateVisuals()
+{
+	DestroyFRIENDLYCHARACTERStateVisuals();
+
+	TArray<FInt32Vector2> path = Grid->FindPath(SelectedCharacter->CurrentTile, HoveredTile);
+	int maxWalkDistance = SelectedCharacter->CurrentMovement + SelectedCharacter->MovementSpeed * CurrentAP;
+
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	for (auto tile : path) 
+	{
+		if (maxWalkDistance <= 0)
+			return;
+		FVector tileLocation = Grid->GetTileDefinition(tile)->Location;
+
+		AActor* widget = GetWorld()->SpawnActor<AActor>(WalkingTileWidgetclass, tileLocation,FRotator::ZeroRotator, SpawnInfo);
+		WalkingTileWidgets.Add(widget);
+
+		maxWalkDistance--;
+	}
+}
 void APlayerPawn::UpdateSKILLStateVisuals() 
 {
+	DestroySKILLStateVisuals();
+
 	FSkillDefinition currentSkill = SelectedCharacter->Skills[SelectedSkillIndex];
 	int maxRange = currentSkill.MaxRange;
 	int minRange = currentSkill.MinRange;
 	int Distance = Grid->CalculateDistance(SelectedCharacter->CurrentTile, HoveredTile);
 
+	float lenght = 1.f; 
+	float Rotation = 0.f;
+
 	FHitResult HitResult;
-	FColor traceColor = FColor::Green;
+	bool isSkillValid = true;
 
 	FVector traceStart = Grid->GetTileDefinition(SelectedCharacter->CurrentTile)->Location;
 	FVector traceEnd = Grid->GetTileDefinition(HoveredTile)->Location;
 
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 	if (Distance <= maxRange + 0.1f && Distance >= minRange - 0.1f)
 	{
-		HitResult = Grid->CheckForObstructionBetweenLocations(traceStart, traceEnd);
+
 	}
 	else if (Distance <= minRange - 0.1f)
 	{
-		traceColor = FColor::Red;
-		HitResult = Grid->CheckForObstructionBetweenLocations(traceStart, traceEnd);
+		isSkillValid = false;
 	}
 	else
 	{
-		traceColor = FColor::Red;
-
-		float X = traceEnd.X - traceStart.X;
-		float Y = traceEnd.Y - traceStart.Y;
-		float lenght = sqrt(pow(X, 2.f) + pow(Y, 2.f));
-		lenght = lenght / Distance * maxRange;
-
-		traceEnd -= traceStart;
-		traceEnd.Normalize();
-		traceEnd *= lenght;
-		traceEnd += traceStart;
-
-		HitResult = Grid->CheckForObstructionBetweenLocations(traceStart, traceEnd);
+		isSkillValid = false;
 	}
+
+	HitResult = Grid->CheckForObstructionBetweenLocations(traceStart, traceEnd);
 
 	if (HitResult.bBlockingHit)
 	{
-		traceColor = FColor::Red;
-		DrawDebugLine(GetWorld(), HitResult.TraceStart, HitResult.Location, traceColor, false, 0.f);
+		isSkillValid = false;
+		traceEnd = HitResult.Location;
+	}
+
+	auto traceEndDirection = traceEnd;
+	traceEndDirection -= traceStart;
+
+	lenght = traceEndDirection.Length() / 100;
+
+	traceEndDirection.Normalize();
+
+	Rotation = FMath::RadiansToDegrees(FMath::Atan2(traceEndDirection.X, -traceEndDirection.Y));
+
+	if (isSkillValid)
+	{
+		SkillWidget = GetWorld()->SpawnActor<AActor>(SkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
+		SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), HitResult.TraceStart, traceEnd, traceColor, false, 0.f);
+		SkillWidget = GetWorld()->SpawnActor<AActor>(InvalidSkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
+		SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
 	}
+}
+void APlayerPawn::DestroyFRIENDLYCHARACTERStateVisuals()
+{
+	if (WalkingTileWidgets.Num() == 0)
+		return;
+	for (auto oldTile : WalkingTileWidgets)
+	{
+		oldTile->Destroy();
+	}
+	WalkingTileWidgets.Empty();
+}
+void APlayerPawn::DestroySKILLStateVisuals()
+{
+	if(SkillWidget)
+		SkillWidget->Destroy();
 }
 
 void APlayerPawn::EndTurn()
 {
-	SelectionState = PlayerSelectionState::NONE;
-	SelectedSkillIndex = -1;
-	TArray<FSkillDefinition> EmptySkills;
-	HUDInstance->UpdateSkillList(EmptySkills);
+	Interaction2SKILL();
+	Interaction2FRIENDLYCHARACTER();
+	Interaction2NONE();
 
 	GameMode->GiveTurnToEnemy();
 }
@@ -179,6 +230,7 @@ void APlayerPawn::ManageInputCameraZoom(float input)
 
 	targetCameraZoom = FMath::Clamp(targetCameraZoom, cameraMinZoom, cameraMaxZoom);
 }
+
 void APlayerPawn::ManageInputInteraction1()
 {
 
@@ -223,6 +275,8 @@ void APlayerPawn::Interaction1FRIENDLYCHARACTER()
 		return;
 
 	SelectedCharacter->WalkToTile(HoveredTile, this);
+
+	DestroyFRIENDLYCHARACTERStateVisuals();
 }
 void APlayerPawn::Interaction1SKILL()
 {
@@ -232,29 +286,42 @@ void APlayerPawn::Interaction1SKILL()
 
 void APlayerPawn::ManageInputInteraction2()
 {
-	TArray<FSkillDefinition> EmptySkills;
-
 	switch (SelectionState)
 	{
 	case PlayerSelectionState::NONE:
+		Interaction2NONE();
 		break;
 	case PlayerSelectionState::FRIENDLYCHARACTER:
-
-		HUDInstance->UpdateSkillList(EmptySkills);
-		SelectionState = PlayerSelectionState::NONE;
-
+		Interaction2FRIENDLYCHARACTER();
 		break;
 	case PlayerSelectionState::SKILL:
-
-		SelectedSkillIndex = -1;
-		HUDInstance->UpdateSkillListVisuals();
-		SelectionState = PlayerSelectionState::FRIENDLYCHARACTER;
-
+		Interaction2SKILL();
 		break;
 	default:
 		break;
 	}
 }
+void APlayerPawn::Interaction2NONE()
+{
+
+}
+void APlayerPawn::Interaction2FRIENDLYCHARACTER()
+{
+	TArray<FSkillDefinition> EmptySkills;
+	HUDInstance->UpdateSkillList(EmptySkills);
+	SelectionState = PlayerSelectionState::NONE;
+
+	DestroyFRIENDLYCHARACTERStateVisuals();
+}
+void APlayerPawn::Interaction2SKILL()
+{
+	SelectedSkillIndex = -1;
+	HUDInstance->UpdateSkillListVisuals();
+	SelectionState = PlayerSelectionState::FRIENDLYCHARACTER;
+
+	DestroySKILLStateVisuals();
+}
+
 void APlayerPawn::ManageInputEndTurn() 
 {
 	EndTurn();

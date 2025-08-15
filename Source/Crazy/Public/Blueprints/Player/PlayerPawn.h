@@ -47,6 +47,16 @@ public:
 	UPROPERTY()
 	AActor* HoveredTileWidget;
 	UPROPERTY()
+	TArray<AActor*> WalkingTileWidgets;
+	UPROPERTY(EditAnywhere, Category = "UI|TileVisuals")
+	TSubclassOf<AActor> WalkingTileWidgetclass;
+	UPROPERTY()
+	AActor* SkillWidget;
+	UPROPERTY(EditAnywhere, Category = "UI|TileVisuals")
+	TSubclassOf<AActor> SkillWidgetclass;
+	UPROPERTY(EditAnywhere, Category = "UI|TileVisuals")
+	TSubclassOf<AActor> InvalidSkillWidgetclass;
+	UPROPERTY()
 	UHUDWidget* HUDInstance;
 	UPROPERTY()
 	PlayerSelectionState SelectionState = PlayerSelectionState::NONE;
@@ -75,7 +85,10 @@ public:
 
 	void UpdateHoveredTile();
 	void UpdateStateVisuals();
+	void UpdateFRIENDLYCHARACTERStateVisuals();
 	void UpdateSKILLStateVisuals();
+	void DestroyFRIENDLYCHARACTERStateVisuals();
+	void DestroySKILLStateVisuals();
 
 	void EndTurn();
 	void SetAP(int APAmmount) override;
@@ -87,8 +100,11 @@ public:
 	void ManageInputInteraction2();
 	void ManageInputEndTurn();
 
-
 	void Interaction1NONE();
 	void Interaction1FRIENDLYCHARACTER(); 
 	void Interaction1SKILL();
+
+	void Interaction2NONE();
+	void Interaction2FRIENDLYCHARACTER();
+	void Interaction2SKILL();
 };

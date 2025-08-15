@@ -25,6 +25,7 @@ void UHUDWidget::UpdateSelectedSkill()
 		APlayerPawn* playerpawn = Cast<APlayerPawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 		playerpawn->SelectedSkillIndex = SelectedSkillItem->ListIndex;
 		playerpawn->SelectionState = PlayerSelectionState::SKILL;
+		playerpawn->DestroyFRIENDLYCHARACTERStateVisuals();
 	}
 }
 void UHUDWidget::UpdateAPValues(int currentAP, int maxAP) 

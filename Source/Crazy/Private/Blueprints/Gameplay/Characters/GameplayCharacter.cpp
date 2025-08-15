@@ -131,12 +131,6 @@ void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* I
 	if (distance <= 0)
 		return;
 
-	for (FInt32Vector2 tile : path)
-	{
-		FTileDefinition* tileDefinition = Grid->GetTileDefinition(tile);
-		DrawDebugSphere(GetWorld(), tileDefinition->Location, 40, 10, FColor::Blue, false, 1);
-	}
-
 	if (distance > CurrentMovement + MovementSpeed * InstigatorPawn->CurrentAP)
 		return;
 
