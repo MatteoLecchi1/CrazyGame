@@ -91,6 +91,8 @@ public:
 	void DestroySKILLStateVisuals();
 
 	void EndTurn();
+	void OnTurnStart() override;
+
 	void SetAP(int APAmmount) override;
 
 	void ManageInputCameraX(float input);

@@ -20,8 +20,14 @@ public:
 	UPROPERTY()
 	class APlayerPawn* PlayerPawn;
 	UPROPERTY()
-	TArray<class AGameplayCharacter*> PlayersCharacters;
-
+	TArray<class AGameplayCharacter*> PlayerCharacters;
+	UPROPERTY()
+	class AEnemyPawn* EnemyPawn;
+	UPROPERTY()
+	TArray<class AGameplayCharacter*> BanditCharacters;
+	UPROPERTY()
+	TArray<class AGameplayCharacter*> MonsterCharacters;
+	
 	void GiveTurnToPlayer();
 	void GiveTurnToEnemy();
 

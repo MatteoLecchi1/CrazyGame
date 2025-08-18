@@ -28,9 +28,11 @@ public:
 	UPROPERTY(editanywhere)
 	TEnumAsByte<ECollisionChannel> FloorCollisionChannel = ECC_Pawn;
 	UPROPERTY(editanywhere)
+	FName FloorTag = "Floor";
+	UPROPERTY(editanywhere)
 	TEnumAsByte<ECollisionChannel> ObstructionChannel = ECC_Pawn;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY()
 	TMap<FInt32Vector2,FTileDefinition> Tiles;
 	UPROPERTY()
 	class APathFindingActor* PathFindingActor;
@@ -47,13 +49,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)
 	void SpawnGrid(int TilesX, int TilesY);
+	void SpawnSpawnSingleTile(int X, int Y);
 	void SetCardinalDirections();
 	FInt32Vector2 GetTileAtLocation(FVector location);
 	int CalculateDistance(FInt32Vector2 Tile1, FInt32Vector2 Tile2);
 	FHitResult CheckForObstruction(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
 	FHitResult CheckForObstructionBetweenLocations(FVector traceStart, FVector traceEnd);
 	FTileDefinition* GetTileDefinition(FInt32Vector2 TileKey);
-	TArray<FInt32Vector2> FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile); 
+	TArray<FInt32Vector2> FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
+	class AGameplayCharacter* FindClosestCharacter(class AGameplayCharacter* Startcharacter, TArray<class AGameplayCharacter*> characters);
 	TArray<FInt32Vector2> GetValidTileNeighbors(FInt32Vector2 StartTile);
-	TArray<FPathFindingData> GetValidTileNeighborsPathFindingData(FInt32Vector2 StartTile);
+	TArray<FPathFindingData> GetValidTileNeighborsPathFindingData(FPathFindingData StartTile);
 };

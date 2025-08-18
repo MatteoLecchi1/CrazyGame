@@ -5,17 +5,21 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprints/Player/PlayerPawn.h"
 #include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
+#include "Blueprints/AI/EnemyPawn.h"
 
 void AGameplayGameMode::GiveTurnToPlayer()
 {
-	PlayerPawn->SetAP(PlayerPawn->CurrentAP + PlayerPawn->APregen);
-	PlayerPawn->PlayersTurn = true;
-	
-	for (auto character : PlayersCharacters) {
+	for (auto character : PlayerCharacters) {
 		character->OnTurnStart();
 	}
+
+	PlayerPawn->OnTurnStart();
 }
 void AGameplayGameMode::GiveTurnToEnemy()
 {
-	GiveTurnToPlayer();
+	for (auto character : BanditCharacters) {
+		character->OnTurnStart();
+	}
+
+	EnemyPawn->OnTurnStart();
 }

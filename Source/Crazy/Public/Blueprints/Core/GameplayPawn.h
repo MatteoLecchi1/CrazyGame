@@ -38,6 +38,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Initialize();
+	virtual void OnTurnStart();
 	virtual void SetAP(int APAmmount);
 
 	// Called to bind functionality to input

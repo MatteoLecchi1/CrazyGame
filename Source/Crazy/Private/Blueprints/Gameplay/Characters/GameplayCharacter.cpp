@@ -50,9 +50,14 @@ void AGameplayCharacter::Initialize()
 	{
 
 	case Factions::PLAYER:
-		GameMode->PlayersCharacters.Add(this);
+		GameMode->PlayerCharacters.Add(this);
 		break;
-
+	case Factions::BANDITS:
+		GameMode->BanditCharacters.Add(this);
+		break;
+	case Factions::MONSTERS:
+		GameMode->MonsterCharacters.Add(this);
+		break;
 	default:
 		break;
 	}
@@ -92,6 +97,24 @@ void AGameplayCharacter::OnDeath()
 {
 	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(CurrentTile);
 	targetedTileDefinition->Occupant = nullptr;
+
+	auto GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
+	switch (Faction)
+	{
+
+	case Factions::PLAYER:
+		GameMode->PlayerCharacters.Remove(this);
+		break;
+	case Factions::BANDITS:
+		GameMode->BanditCharacters.Remove(this);
+		break;
+	case Factions::MONSTERS:
+		GameMode->MonsterCharacters.Remove(this);
+		break;
+	default:
+		break;
+	}
+
 	Destroy();
 }
 
@@ -125,14 +148,21 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targ
 
 void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn)
 {
-	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
+  	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
 
 	int distance = path.Num();
-	if (distance <= 0)
+	if (distance == 0)
 		return;
 
-	if (distance > CurrentMovement + MovementSpeed * InstigatorPawn->CurrentAP)
+	int MaxDistance = CurrentMovement + MovementSpeed * InstigatorPawn->CurrentAP;
+	if (MaxDistance == 0)
 		return;
+
+	if (distance > MaxDistance)
+	{
+		distance = MaxDistance;
+		targetedTile = path[MaxDistance - 1];
+	}
 
 	MoveToTile(targetedTile);
 	
@@ -165,5 +195,5 @@ void AGameplayCharacter::AddSkill(FName SkillKey, UCrazyGameInstance* GameInstan
 
 void AGameplayCharacter::OnTurnStart()
 {
-	CurrentMovement = MovementSpeed;
+ 	CurrentMovement = MovementSpeed;
 }

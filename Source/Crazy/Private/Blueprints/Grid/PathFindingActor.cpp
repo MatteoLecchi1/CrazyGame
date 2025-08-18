@@ -2,6 +2,7 @@
 
 
 #include "Blueprints/Grid/PathFindingActor.h"
+#include "Chaos/DebugDrawQueue.h"
 
 // Sets default values
 APathFindingActor::APathFindingActor()
@@ -59,7 +60,7 @@ void APathFindingActor::DiscoverTile(FPathFindingData TileData)
 bool APathFindingActor::AnalyseNextDiscoveredTile()
 {
 	CurrentDiscoveredTile = PullCheapestTileOutOfDiscoveredList();
-	CurrentNeighbors = GridManager->GetValidTileNeighborsPathFindingData(CurrentDiscoveredTile.Index);
+	CurrentNeighbors = GridManager->GetValidTileNeighborsPathFindingData(CurrentDiscoveredTile);
 
 	while (CurrentNeighbors.Num() > 0)
 	{

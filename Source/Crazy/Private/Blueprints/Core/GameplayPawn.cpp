@@ -40,6 +40,11 @@ void AGameplayPawn::SetAP(int APAmmount)
 		CurrentAP = MaxAP;
 }
 
+void AGameplayPawn::OnTurnStart()
+{
+	SetAP(CurrentAP + APregen);
+}
+
 // Called to bind functionality to input
 void AGameplayPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

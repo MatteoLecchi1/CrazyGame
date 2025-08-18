@@ -5,6 +5,8 @@
 #include "Chaos/DebugDrawQueue.h"
 #include "DrawDebugHelpers.h"
 #include "Blueprints/Grid/PathFindingActor.h"
+#include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
+#include "Blueprints/Core/GameplayGameMode.h"
 
 // Sets default values
 AGridManagerActor::AGridManagerActor()
@@ -47,42 +49,47 @@ void AGridManagerActor::SpawnGrid(int TilesX, int TilesY)
 	InstancedStaticMeshComponent->ClearInstances();
 	Tiles.Empty();
 
-	FTransform Spawntransform = FTransform::Identity;
-	
-	FCollisionQueryParams CollisionParams;
-	FHitResult Hitfront;
-
 	for (int X = 0; X < TilesX; X++)
 	{
 		for (int Y = 0; Y < TilesY; Y++)
 		{
-			float TileXLocation = X * TileSize;
-			float TileYLocation = Y * TileSize;
-
-			FVector TraceStart = FVector(TileXLocation, TileYLocation, 100.f);
-			FVector TraceEnd = FVector(TileXLocation, TileYLocation, -100.f);
-
-			FVector WorldTraceStart = GetActorTransform().TransformPosition(TraceStart);
-			FVector WorldTraceEnd = GetActorTransform().TransformPosition(TraceEnd);
-
-
-			GetWorld()->LineTraceSingleByChannel(Hitfront, WorldTraceStart, WorldTraceEnd, FloorCollisionChannel, CollisionParams);
-			if (!Hitfront.bBlockingHit)
-				continue;
-
-			Spawntransform.SetLocation(FVector(TileXLocation, TileYLocation, 0.1f));
-			InstancedStaticMeshComponent->AddInstance(Spawntransform);
-
-			FInt32Vector2 newKey;
-			newKey.X = X;
-			newKey.Y = Y;
-
-			FTileDefinition newTile;
-			newTile.Location = GetActorTransform().TransformPosition(Spawntransform.GetLocation());
-
-			Tiles.Add(newKey,newTile);
+			SpawnSpawnSingleTile(X, Y);
 		}
 	}
+}
+
+void AGridManagerActor::SpawnSpawnSingleTile(int X, int Y)
+{
+	FTransform Spawntransform = FTransform::Identity;
+	FHitResult Hitfront;
+
+	float TileXLocation = X * TileSize;
+	float TileYLocation = Y * TileSize;
+
+	FVector TraceStart = FVector(TileXLocation, TileYLocation, 100.f);
+	FVector TraceEnd = FVector(TileXLocation, TileYLocation, -100.f);
+
+	FVector WorldTraceStart = GetActorTransform().TransformPosition(TraceStart);
+	FVector WorldTraceEnd = GetActorTransform().TransformPosition(TraceEnd);
+
+
+	GetWorld()->LineTraceSingleByChannel(Hitfront, WorldTraceStart, WorldTraceEnd, FloorCollisionChannel);
+	if (!Hitfront.bBlockingHit)
+		return;
+	if (!Hitfront.GetActor()->ActorHasTag(FloorTag))
+		return;
+
+	Spawntransform.SetLocation(FVector(TileXLocation, TileYLocation, 0.1f));
+	InstancedStaticMeshComponent->AddInstance(Spawntransform);
+
+	FInt32Vector2 newKey;
+	newKey.X = X;
+	newKey.Y = Y;
+
+	FTileDefinition newTile;
+	newTile.Location = GetActorTransform().TransformPosition(Spawntransform.GetLocation());
+
+	Tiles.Add(newKey, newTile);
 }
 
 void AGridManagerActor::SetCardinalDirections() 
@@ -160,28 +167,89 @@ TArray<FInt32Vector2> AGridManagerActor::FindPath(FInt32Vector2 StartTile, FInt3
 	return PathFindingActor->FindPath(StartTile, EndTile);
 }
 
+AGameplayCharacter* AGridManagerActor::FindClosestCharacter(AGameplayCharacter* Startcharacter, TArray<AGameplayCharacter*> characters)
+{
+
+	auto targetsNeighbors = GetValidTileNeighbors(Startcharacter->CurrentTile);
+	for (auto Neighbor : targetsNeighbors)
+	{
+		auto definition = GetTileDefinition(Neighbor);
+		if (definition->Occupant)
+		{
+			auto target = Cast<AGameplayCharacter>(definition->Occupant);
+			if(characters.Contains(target))
+				return target;
+		}
+	}
+
+	TArray<FInt32Vector2> Currentpath;
+	TArray<FInt32Vector2> path;
+	AGameplayCharacter* CurrentClosestCharacter = nullptr;
+
+	auto GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
+
+	int i = 0;
+
+	for (auto character : characters) 
+	{
+		TArray<FInt32Vector2> characterNeighbors = GetValidTileNeighbors(character->CurrentTile);
+
+		if (characterNeighbors.Num() == 0)
+			continue;
+
+		Currentpath = FindPath(Startcharacter->CurrentTile, characterNeighbors[0]);
+
+		if (Currentpath.Num() == 0)
+			continue;
+		
+		if (Currentpath.Num() < path.Num() || i == 0) 
+		{
+			path = Currentpath;
+			CurrentClosestCharacter = character;
+			i++;
+		}
+	}
+	return CurrentClosestCharacter;
+}
+
 TArray<FInt32Vector2> AGridManagerActor::GetValidTileNeighbors(FInt32Vector2 StartTile)
 {
 	TArray<FInt32Vector2> TilesFound;
 	for (auto direction : CardinalDirections)
 	{
 		direction += StartTile;
-		if (GetTileDefinition(direction))
+		if (auto definition = GetTileDefinition(direction)) 
+		{
+			if (definition->Occupant)
+				continue;
+			if (definition->tileType != TileType::WALKABLE)
+				continue;
+
 			TilesFound.Add(direction);
+		}
 	}
 	return TilesFound;
 }
-TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData(FInt32Vector2 StartTile)
+TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData(FPathFindingData StartTile)
 {
 	TArray<FPathFindingData> TilesFound;
 	for (auto direction : CardinalDirections)
 	{
-		direction += StartTile;
-		if (GetTileDefinition(direction))
+		direction += StartTile.Index;
+
+		if (StartTile.PreviousIndex == direction)
+			continue;
+
+		if (auto definition = GetTileDefinition(direction))
 		{
+			if (definition->Occupant)
+				continue;
+			if (definition->tileType != TileType::WALKABLE)
+				continue;
+
 			FPathFindingData TileDataFound;
 			TileDataFound.Index = direction;
-			TileDataFound.PreviousIndex = StartTile;
+			TileDataFound.PreviousIndex = StartTile.Index;
 			TileDataFound.CostToEnterTile = 1;
 			TilesFound.Add(TileDataFound);
 		}

@@ -176,8 +176,6 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 }
 void APlayerPawn::DestroyFRIENDLYCHARACTERStateVisuals()
 {
-	if (WalkingTileWidgets.Num() == 0)
-		return;
 	for (auto oldTile : WalkingTileWidgets)
 	{
 		oldTile->Destroy();
@@ -197,6 +195,12 @@ void APlayerPawn::EndTurn()
 	Interaction2NONE();
 
 	GameMode->GiveTurnToEnemy();
+}
+
+void APlayerPawn::OnTurnStart()
+{
+	Super::OnTurnStart();
+	PlayersTurn = true;
 }
 
 void APlayerPawn::SetAP(int APAmmount)
