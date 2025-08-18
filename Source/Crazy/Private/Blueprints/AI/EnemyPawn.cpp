@@ -28,7 +28,7 @@ void AEnemyPawn::OnTurnStart()
 
 	auto characters = GameMode->BanditCharacters;
 
-	for (auto character : characters) 
+	for (auto character : characters)
 	{
 		
 		auto targetCharacter = Grid->FindClosestCharacter(character,GameMode->PlayerCharacters);
@@ -38,13 +38,32 @@ void AEnemyPawn::OnTurnStart()
 
 		auto distance = Grid->CalculateDistance(character->CurrentTile, targetCharacter->CurrentTile);
 
-		if (distance > 1)
-		{
-			auto targetsNeighbors = Grid->GetValidTileNeighbors(targetCharacter->CurrentTile);
-			character->WalkToTile(targetsNeighbors[0], this);
-		}
+		auto targetsNeighbors = Grid->GetValidTileNeighbors(targetCharacter->CurrentTile);
 
-		character->UseSkill(character->Skills[0], targetCharacter->CurrentTile, this);
+		auto pathToTargetCharacter = Grid->FindPath(character->CurrentTile, targetsNeighbors[0]);
+
+		if (distance > character->Skills[0].MaxRange)
+		{
+			FInt32Vector2 targetWalkTile = FInt32Vector2(-1, -1);
+			for (auto tile : pathToTargetCharacter)
+			{
+				if (Grid->CalculateDistance(tile, targetCharacter->CurrentTile) > character->Skills[0].MaxRange)
+					continue;
+				if (Grid->CheckForObstruction(tile, targetCharacter->CurrentTile).bBlockingHit)
+					continue;
+				targetWalkTile = tile;
+				break;
+			}
+			character->WalkToTile(targetWalkTile, this);
+		}
+		if (!(distance < character->Skills[0].MinRange))
+		{
+			character->UseSkill(character->Skills[0], targetCharacter->CurrentTile, this);
+		}
+		else
+		{
+			character->UseSkill(character->Skills[1], targetCharacter->CurrentTile, this);
+		}
 	}
 	EndTurn();
 }
