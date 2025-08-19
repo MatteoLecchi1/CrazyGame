@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h" 	
 #include "Blueprint/IUserObjectListEntry.h"
+#include "Structs/TileDefinition.h"
+#include "Components/Image.h"
 #include "SkillListEntry.generated.h"
 
 /**
@@ -19,5 +21,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = UI)
 	int ListIndex;
+	UPROPERTY(BlueprintReadWrite, Category = UI)
+	FSkillDefinition Skill;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UImage* SkillIcon;
 
 };

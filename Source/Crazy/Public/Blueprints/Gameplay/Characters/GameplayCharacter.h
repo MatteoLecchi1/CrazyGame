@@ -60,7 +60,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void Initialize();
 
-	virtual float TakeDamage(float DamageAmount,struct FDamageEvent const& DamageEvent,class AController* EventInstigator,AActor* DamageCauser)override;
+	float MyTakeDamage(float DamageAmount, DamageElements damageElement);
 
 	void UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn);
 	void WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn);

@@ -82,7 +82,7 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	FName SkillDysplayName = "Skill";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UTexture2D> SkillIcon = nullptr;
+	UTexture2D* SkillIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FDamageDefinition> Damage;

@@ -6,6 +6,7 @@
 #include "Components/ListView.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprints/Player/PlayerPawn.h"
+#include "Blueprints/UI/SkillListEntry.h"
 
 void UHUDWidget::UpdateSkillList(TArray<FSkillDefinition> Skills)
 {
@@ -14,8 +15,10 @@ void UHUDWidget::UpdateSkillList(TArray<FSkillDefinition> Skills)
 	{
 		USkillListEntry* Item = NewObject<USkillListEntry>();
 		Item->ListIndex = i;
+		Item->Skill = Skills[i];
 		SkillList->AddItem(Item);
 	}
+	UpdateSkillListVisuals();
 }
 void UHUDWidget::UpdateSelectedSkill()
 {

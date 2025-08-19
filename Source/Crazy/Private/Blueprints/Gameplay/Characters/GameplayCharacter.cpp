@@ -69,17 +69,52 @@ void AGameplayCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-float AGameplayCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) 
+float AGameplayCharacter::MyTakeDamage(float DamageAmount, DamageElements damageElement)
 {
+	bool ignoreArmor = false;
+	bool canHeal = false;
+	float damageMultiplier = 0.f;
+	float currentArmor = Armor;
+	float MinDamage = 0.f;
+	float MaxDamage = 999999.f;
+
+	switch (damageElement)
+	{
+	case DamageElements::SLASH:
+		break;
+	case DamageElements::PIERCE:
+		break;
+	case DamageElements::BLUNT:
+		break;
+	case DamageElements::HEAL:
+		ignoreArmor = true;
+		canHeal = true;
+		DamageAmount = -DamageAmount;
+		break;
+	default:
+		break;
+	}
+
+	if (ignoreArmor)
+	{
+		currentArmor = 0;
+	}
+	if (canHeal)
+	{
+		MinDamage = -999999.f;
+	}
 
 	float PostMultiplierDamage = FMath::Clamp(
-		(DamageAmount - Armor) * 1, 
-		0,
-		99999.f);//fix this shit
+		(DamageAmount - currentArmor) * (1 - damageMultiplier / 100),
+		MinDamage,
+		MaxDamage);
 
 	int totalDamage = FMath::TruncToInt(PostMultiplierDamage);
 
 	CurrentHP = CurrentHP - totalDamage;
+
+	CurrentHP = FMath::Clamp(CurrentHP, 0, MaxHP);
+
 	if(CharacterWidget)
 	{
 		CharacterWidget->UpdateHPValues(CurrentHP, MaxHP);
@@ -90,7 +125,7 @@ float AGameplayCharacter::TakeDamage(float DamageAmount, struct FDamageEvent con
 		OnDeath();
 	}
 
-	return DamageAmount;
+	return totalDamage;
 }
 
 void AGameplayCharacter::OnDeath() 
@@ -136,11 +171,11 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targ
 	if (Grid->CheckForObstruction(CurrentTile, targetedTile).bBlockingHit)
 		return;
 
-	AActor* targetedActor = targetedTileDefinition->Occupant;
+	AGameplayCharacter* targetedActor = Cast<AGameplayCharacter>(targetedTileDefinition->Occupant);
 
 	for (auto damageInstance : skillUsed.Damage) 
 	{
-		UGameplayStatics::ApplyDamage(targetedActor, damageInstance.DamageAmount, UGameplayStatics::GetPlayerController(GetWorld(), 0), this, nullptr);
+		targetedActor->MyTakeDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
 	}
 
 	InstigatorPawn->SetAP(InstigatorPawn->CurrentAP - skillUsed.APCost);
