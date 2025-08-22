@@ -73,10 +73,15 @@ float AGameplayCharacter::MyTakeDamage(float DamageAmount, DamageElements damage
 {
 	bool ignoreArmor = false;
 	bool canHeal = false;
-	float damageMultiplier = 0.f;
+	int damageMultiplier = 0;
 	float currentArmor = Armor;
 	float MinDamage = 0.f;
 	float MaxDamage = 999999.f;
+
+	if (int* damageResistance = DamageResistanceMap.Find(damageElement)) 
+	{
+		damageMultiplier = *damageResistance;
+	}
 
 	switch (damageElement)
 	{

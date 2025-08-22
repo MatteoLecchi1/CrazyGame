@@ -100,15 +100,25 @@ void APlayerPawn::UpdateFRIENDLYCHARACTERStateVisuals()
 	FActorSpawnParameters SpawnInfo;
 	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+	int i = 0;
+
 	for (auto tile : path) 
 	{
 		if (maxWalkDistance <= 0)
 			return;
 		FVector tileLocation = Grid->GetTileDefinition(tile)->Location;
 
-		AActor* widget = GetWorld()->SpawnActor<AActor>(WalkingTileWidgetclass, tileLocation,FRotator::ZeroRotator, SpawnInfo);
-		WalkingTileWidgets.Add(widget);
-
+		if (i < WalkingTileWidgets.Num())
+		{
+			WalkingTileWidgets[i]->SetActorLocation(tileLocation);
+			WalkingTileWidgets[i]->SetActorHiddenInGame(false);
+		}
+		else
+		{
+			AActor* widget = GetWorld()->SpawnActor<AActor>(WalkingTileWidgetclass, tileLocation, FRotator::ZeroRotator, SpawnInfo);
+			WalkingTileWidgets.Add(widget);
+		}
+		i++;
 		maxWalkDistance--;
 	}
 }
@@ -178,9 +188,8 @@ void APlayerPawn::DestroyFRIENDLYCHARACTERStateVisuals()
 {
 	for (auto oldTile : WalkingTileWidgets)
 	{
-		oldTile->Destroy();
+		oldTile->SetActorHiddenInGame(true);
 	}
-	WalkingTileWidgets.Empty();
 }
 void APlayerPawn::DestroySKILLStateVisuals()
 {
