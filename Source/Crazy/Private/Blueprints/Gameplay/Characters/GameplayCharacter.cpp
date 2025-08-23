@@ -133,9 +133,11 @@ void AGameplayCharacter::OnDeath()
 	Destroy();
 }
 
-int AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, int AP)
+int AGameplayCharacter::UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, int AP)
 {
-	if (skillUsed.APCost > AP)
+	if (skillUsed->CurrentCooldown > 0)
+		return 0;
+	if (skillUsed->APCost > AP)
 		return 0;
 
 	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(targetedTile);
@@ -145,7 +147,7 @@ int AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targe
 
 	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
 
-	if (distance > skillUsed.MaxRange || distance < skillUsed.MinRange)
+	if (distance > skillUsed->MaxRange || distance < skillUsed->MinRange)
 		return 0;
 
 	if (Grid->CheckForObstruction(CurrentTile, targetedTile).bBlockingHit)
@@ -153,19 +155,21 @@ int AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targe
 
 	AGameplayCharacter* targetedActor = Cast<AGameplayCharacter>(targetedTileDefinition->Occupant);
 
-	for (auto damageInstance : skillUsed.Damage) 
+	for (auto damageInstance : skillUsed->Damage)
 	{
 		targetedActor->MyTakeDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
 	}
-	int APUsed = skillUsed.APCost;
+	skillUsed->CurrentCooldown = skillUsed->Cooldown;
+
+	int APUsed = skillUsed->APCost;
 	return APUsed;
 }
-void AGameplayCharacter::UseSkillAsCharacter(FSkillDefinition skillUsed, FInt32Vector2 targetedTile)
+void AGameplayCharacter::UseSkillAsCharacter(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
 {
 	int APused = UseSkill(skillUsed, targetedTile,CurrentAP);
 	CurrentAP -= APused;
 }
-void AGameplayCharacter::UseSkillAsGameplayPawn(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* myInstigator)
+void AGameplayCharacter::UseSkillAsGameplayPawn(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* myInstigator)
 {
 	int APused = UseSkill(skillUsed, targetedTile, myInstigator->CurrentAP);
 	myInstigator->SetAP(myInstigator->CurrentAP - APused);
@@ -234,9 +238,16 @@ void AGameplayCharacter::OnTurnStart()
 {
  	CurrentMovement = MovementSpeed;
 	FillAP();
+	DecreseAllCooldownsBy(1);
 }
-
 void AGameplayCharacter::FillAP()
 {
 	CurrentAP = MaxAP;
+}
+void AGameplayCharacter::DecreseAllCooldownsBy(int ammount)
+{
+	for (int i = 0; i < Skills.Num(); i++)
+	{
+		Skills[i].CurrentCooldown -= ammount;
+	}
 }

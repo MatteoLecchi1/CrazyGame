@@ -94,6 +94,10 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	int MaxRange = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int APCost = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Cooldown = 1;
+	UPROPERTY()
+	int CurrentCooldown = 0;
 };
 USTRUCT(BlueprintType)
 struct CRAZY_API FPathFindingData

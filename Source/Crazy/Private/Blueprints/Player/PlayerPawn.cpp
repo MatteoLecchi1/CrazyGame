@@ -305,7 +305,8 @@ void APlayerPawn::Interaction1FRIENDLYCHARACTER()
 void APlayerPawn::Interaction1SKILL()
 {
 	FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
-	SelectedCharacter->UseSkillAsGameplayPawn(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile, this);
+	FSkillDefinition* skill = &SelectedCharacter->Skills[SelectedSkillIndex];
+	SelectedCharacter->UseSkillAsGameplayPawn(skill, HoveredTile, this);
 }
 
 void APlayerPawn::ManageInputInteraction2()

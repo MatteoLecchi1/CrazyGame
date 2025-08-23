@@ -70,8 +70,8 @@ void AEnemyPawn::OnTurnStart()
 
 		if (skillToUse < 0)
 			return;
-
-		character->UseSkillAsCharacter(character->Skills[skillToUse], targetCharacter->CurrentTile);
+		FSkillDefinition* skill = &character->Skills[skillToUse];
+		character->UseSkillAsCharacter(skill, targetCharacter->CurrentTile);
 	}
 	EndTurn();
 }

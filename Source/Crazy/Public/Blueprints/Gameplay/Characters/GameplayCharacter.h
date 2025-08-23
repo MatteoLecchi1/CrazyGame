@@ -67,9 +67,9 @@ public:
 
 	float MyTakeDamage(float DamageAmount, DamageElements damageElement);
 
-	int UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, int AP);
-	void UseSkillAsCharacter(FSkillDefinition skillUsed, FInt32Vector2 targetedTile);
-	void UseSkillAsGameplayPawn(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
+	int UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, int AP);
+	void UseSkillAsCharacter(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
+	void UseSkillAsGameplayPawn(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
 
 	int WalkToTile(FInt32Vector2 targetedTile, int AP);
 	void WalkToTileAsCharacter(FInt32Vector2 targetedTile);
@@ -77,9 +77,12 @@ public:
 
 	void MoveToTile(FInt32Vector2 targetedTile);
 
-	void FillAP();
 
 	void AddSkill(FName SkillKey, UCrazyGameInstance* GameInstance);
+
 	void OnTurnStart();
+	void FillAP();
+	void DecreseAllCooldownsBy(int ammount);
+
 	void OnDeath();
 };
