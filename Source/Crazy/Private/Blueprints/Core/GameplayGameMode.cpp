@@ -6,6 +6,7 @@
 #include "Blueprints/Player/PlayerPawn.h"
 #include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
 #include "Blueprints/AI/EnemyPawn.h"
+#include "Blueprints/Core/SkillManagerActor.h"
 
 
 AGameplayGameMode::AGameplayGameMode()
@@ -19,11 +20,16 @@ void AGameplayGameMode::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (Tick1Timer == 0) 
 	{
+		
 		AActor* Grid = UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass());
-		if (AGridManagerActor* gameplayGrid = Cast<AGridManagerActor>(Grid))
-		{
-			gameplayGrid->Initialize();
-		}
+		AGridManagerActor* gameplayGrid = Cast<AGridManagerActor>(Grid);
+		gameplayGrid->Initialize();
+
+		FActorSpawnParameters SpawnInfo;
+		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SkillManagerActor = GetWorld()->SpawnActor<ASkillManagerActor>();
+		SkillManagerActor->GameMode = this;
+		SkillManagerActor->Grid = gameplayGrid;
 
 		TArray<AActor*> pawns;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(),AGameplayPawn::StaticClass(),pawns);
@@ -44,7 +50,6 @@ void AGameplayGameMode::Tick(float DeltaTime)
 				gameplayCharacter->Initialize();
 			}
 		}
-
 		Tick1Timer = 1;
 	}
 }

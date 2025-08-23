@@ -56,6 +56,9 @@ public:
 	UPROPERTY()
 	UCharacterWidget* CharacterWidget;
 
+	UPROPERTY()
+	AGameplayGameMode* GameMode;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

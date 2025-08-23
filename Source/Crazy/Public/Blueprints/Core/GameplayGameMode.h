@@ -32,6 +32,9 @@ public:
 	TArray<class AGameplayCharacter*> MonsterCharacters;
 
 	UPROPERTY()
+	class ASkillManagerActor* SkillManagerActor;
+
+	UPROPERTY()
 	int Tick1Timer = 0;
 
 	virtual void Tick(float DeltaTime) override;

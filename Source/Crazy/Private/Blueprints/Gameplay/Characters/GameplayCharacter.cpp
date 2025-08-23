@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprints/Core/CrazyGameInstance.h"
 #include "Blueprints/Player/PlayerPawn.h"
+#include "Blueprints/Core/SkillManagerActor.h"
 
 // Sets default values
 AGameplayCharacter::AGameplayCharacter()
@@ -45,7 +46,7 @@ void AGameplayCharacter::Initialize()
 	CharacterWidget = Cast<UCharacterWidget>(widget->GetWidget());
 	CharacterWidget->UpdateHPValues(CurrentHP, MaxHP);
 
-	AGameplayGameMode* GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
+	GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
 	GameMode->AddCharacterToArrays(this);
 }
 
@@ -127,7 +128,6 @@ void AGameplayCharacter::OnDeath()
 	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(CurrentTile);
 	targetedTileDefinition->Occupant = nullptr;
 
-	auto GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
 	GameMode->DropCharacterFromArrays(this);
 
 	Destroy();
@@ -140,11 +140,6 @@ int AGameplayCharacter::UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targ
 	if (skillUsed->APCost > AP)
 		return 0;
 
-	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(targetedTile);
-
-	if (!targetedTileDefinition->Occupant)
-		return 0;
-
 	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
 
 	if (distance > skillUsed->MaxRange || distance < skillUsed->MinRange)
@@ -153,12 +148,8 @@ int AGameplayCharacter::UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targ
 	if (Grid->CheckForObstruction(CurrentTile, targetedTile).bBlockingHit)
 		return 0;
 
-	AGameplayCharacter* targetedActor = Cast<AGameplayCharacter>(targetedTileDefinition->Occupant);
+	GameMode->SkillManagerActor->ManageSkill(skillUsed, targetedTile);
 
-	for (auto damageInstance : skillUsed->Damage)
-	{
-		targetedActor->MyTakeDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
-	}
 	skillUsed->CurrentCooldown = skillUsed->Cooldown;
 
 	int APUsed = skillUsed->APCost;

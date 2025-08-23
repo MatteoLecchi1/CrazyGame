@@ -98,6 +98,11 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	int Cooldown = 1;
 	UPROPERTY()
 	int CurrentCooldown = 0;
+
+	UPROPERTY(EditAnywhere,Category = "AOE")
+	bool IsAOE = 0;
+	UPROPERTY(EditAnywhere,Category = "AOE")
+	TArray<FInt32Vector2> AOETiles = { FInt32Vector2(0, 0)};
 };
 USTRUCT(BlueprintType)
 struct CRAZY_API FPathFindingData
