@@ -31,6 +31,13 @@ enum class DamageElements : uint8
 	HEAL = 3	UMETA(DisplayName = "HEAL"),
 	MAGIC = 4	UMETA(DisplayName = "MAGIC"),
 };
+UENUM(BlueprintType)
+enum class AOEType : uint8
+{
+	SINGLETILE = 0		UMETA(DisplayName = "SINGLETILE"),
+	AOE = 1		UMETA(DisplayName = "AOE"),
+	DIRECTIONALAOE = 2	UMETA(DisplayName = "DIRECTIONALAOE"),
+};
 
 UENUM(BlueprintType)
 enum class Factions : uint8
@@ -100,7 +107,7 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	int CurrentCooldown = 0;
 
 	UPROPERTY(EditAnywhere,Category = "AOE")
-	bool IsAOE = 0;
+	AOEType AOEtype = AOEType::SINGLETILE;
 	UPROPERTY(EditAnywhere,Category = "AOE")
 	TArray<FInt32Vector2> AOETiles = { FInt32Vector2(0, 0)};
 };

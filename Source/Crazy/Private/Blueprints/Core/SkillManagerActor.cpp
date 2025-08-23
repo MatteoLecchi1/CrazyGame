@@ -3,6 +3,7 @@
 
 #include "Blueprints/Core/SkillManagerActor.h"
 #include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
+#include "Chaos/DebugDrawQueue.h"
 
 // Sets default values
 ASkillManagerActor::ASkillManagerActor()
@@ -26,35 +27,104 @@ void ASkillManagerActor::Tick(float DeltaTime)
 
 }
 
-void ASkillManagerActor::ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
+void ASkillManagerActor::ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
 {
-	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile);
-	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile);
+	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, SkillUser);
+	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
 	PlaySkill(skillUsed, Targets);
 }
 
-TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
+TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
 {
 	TArray<FInt32Vector2> AOETiles;
 
-	if (!skillUsed->IsAOE)
+	switch (skillUsed->AOEtype)
 	{
-		AOETiles.Add(FInt32Vector2(0,0));
+	case AOEType::SINGLETILE:
+		AOETiles.Add(targetedTile);
+		break;
+	case AOEType::AOE:
+		AOETiles = FindAOESkillAOE(skillUsed, targetedTile, SkillUser);
+		break;
+	case AOEType::DIRECTIONALAOE:
+		AOETiles = FindDIRECTIONALAOESkillAOE(skillUsed, targetedTile, SkillUser);
+		break;
+	default:
+		break;
 	}
-	else
+	for (auto tile : AOETiles)
 	{
-		AOETiles = skillUsed->AOETiles;
+		if (Grid->GetTileDefinition(tile))
+		{
+			FVector location = Grid->GetTileDefinition(tile)->Location;
+			DrawDebugSphere(GetWorld(), location, 40, 16, FColor::Red, false, 3.f);
+		}
 	}
-
+	return AOETiles;
+}
+TArray<FInt32Vector2> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+{
+	TArray<FInt32Vector2> AOETiles = skillUsed->AOETiles;
+	for (int i = 0; i <AOETiles.Num(); i++) 
+	{
+		AOETiles[i] += targetedTile;
+	}
 	return AOETiles;
 }
 
-TArray<AGameplayCharacter*> ASkillManagerActor::FindSkillTargets(FSkillDefinition* skillUsed, TArray<FInt32Vector2> targetedTiles, FInt32Vector2 targetedTile)
+TArray<FInt32Vector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+{
+	FInt32Vector2 relativeTargetedTile = SkillUser->CurrentTile - targetedTile;
+	int TargetAreaDirection = 0;
+	if (abs(relativeTargetedTile.X) > abs(relativeTargetedTile.Y))
+	{
+		if (relativeTargetedTile.X > 0)
+			TargetAreaDirection = 0;
+		else
+			TargetAreaDirection = 1;
+	}
+	else
+	{
+		if (relativeTargetedTile.Y > 0)
+			TargetAreaDirection = 2;
+		else
+			TargetAreaDirection = 3;
+	}
+
+	TArray<FInt32Vector2> AOETiles = skillUsed->AOETiles;
+	int X = 0;
+	for (int i = 0; i < AOETiles.Num(); i++)
+	{
+		switch (TargetAreaDirection)
+		{
+		case 0:
+			AOETiles[i].X *= -1;
+			break;
+		case 1:
+			break;
+		case 2:
+			X = AOETiles[i].X;
+			AOETiles[i].X = AOETiles[i].Y;
+			AOETiles[i].Y = X * -1;
+			break;
+		case 3:
+			X = AOETiles[i].X;
+			AOETiles[i].X = AOETiles[i].Y;
+			AOETiles[i].Y = X;
+			break;
+		default:
+			break;
+		}
+		AOETiles[i] += SkillUser->CurrentTile;
+	}
+	return AOETiles;
+}
+
+TArray<AGameplayCharacter*> ASkillManagerActor::FindSkillTargets(FSkillDefinition* skillUsed, TArray<FInt32Vector2> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
 {
 	TArray<AGameplayCharacter*> Targets;
 	for (auto tile : targetedTiles)
 	{
-		tile += targetedTile;
 		auto tileDefinition = Grid->GetTileDefinition(tile);
 		if (!tileDefinition)
 			continue;
