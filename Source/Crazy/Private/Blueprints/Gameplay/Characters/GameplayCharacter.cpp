@@ -4,6 +4,7 @@
 #include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprints/Core/CrazyGameInstance.h"
+#include "Blueprints/Player/PlayerPawn.h"
 
 // Sets default values
 AGameplayCharacter::AGameplayCharacter()
@@ -17,7 +18,6 @@ AGameplayCharacter::AGameplayCharacter()
 void AGameplayCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	Initialize();
 }
 void AGameplayCharacter::Initialize()
 {
@@ -46,21 +46,7 @@ void AGameplayCharacter::Initialize()
 	CharacterWidget->UpdateHPValues(CurrentHP, MaxHP);
 
 	AGameplayGameMode* GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
-	switch (Faction)
-	{
-
-	case Factions::PLAYER:
-		GameMode->PlayerCharacters.Add(this);
-		break;
-	case Factions::BANDITS:
-		GameMode->BanditCharacters.Add(this);
-		break;
-	case Factions::MONSTERS:
-		GameMode->MonsterCharacters.Add(this);
-		break;
-	default:
-		break;
-	}
+	GameMode->AddCharacterToArrays(this);
 }
 
 // Called every frame
@@ -95,6 +81,9 @@ float AGameplayCharacter::MyTakeDamage(float DamageAmount, DamageElements damage
 		ignoreArmor = true;
 		canHeal = true;
 		DamageAmount = -DamageAmount;
+		break;
+	case DamageElements::MAGIC:
+		ignoreArmor = true;
 		break;
 	default:
 		break;
@@ -139,42 +128,28 @@ void AGameplayCharacter::OnDeath()
 	targetedTileDefinition->Occupant = nullptr;
 
 	auto GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
-	switch (Faction)
-	{
-
-	case Factions::PLAYER:
-		GameMode->PlayerCharacters.Remove(this);
-		break;
-	case Factions::BANDITS:
-		GameMode->BanditCharacters.Remove(this);
-		break;
-	case Factions::MONSTERS:
-		GameMode->MonsterCharacters.Remove(this);
-		break;
-	default:
-		break;
-	}
+	GameMode->DropCharacterFromArrays(this);
 
 	Destroy();
 }
 
-void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn)
+int AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, int AP)
 {
-	if (skillUsed.APCost > InstigatorPawn->CurrentAP)
-		return;
+	if (skillUsed.APCost > AP)
+		return 0;
 
 	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(targetedTile);
 
 	if (!targetedTileDefinition->Occupant)
-		return;
+		return 0;
 
 	int distance = Grid->CalculateDistance(CurrentTile, targetedTile);
 
 	if (distance > skillUsed.MaxRange || distance < skillUsed.MinRange)
-		return;
+		return 0;
 
 	if (Grid->CheckForObstruction(CurrentTile, targetedTile).bBlockingHit)
-		return;
+		return 0;
 
 	AGameplayCharacter* targetedActor = Cast<AGameplayCharacter>(targetedTileDefinition->Occupant);
 
@@ -182,21 +157,31 @@ void AGameplayCharacter::UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targ
 	{
 		targetedActor->MyTakeDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
 	}
-
-	InstigatorPawn->SetAP(InstigatorPawn->CurrentAP - skillUsed.APCost);
+	int APUsed = skillUsed.APCost;
+	return APUsed;
+}
+void AGameplayCharacter::UseSkillAsCharacter(FSkillDefinition skillUsed, FInt32Vector2 targetedTile)
+{
+	int APused = UseSkill(skillUsed, targetedTile,CurrentAP);
+	CurrentAP -= APused;
+}
+void AGameplayCharacter::UseSkillAsGameplayPawn(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* myInstigator)
+{
+	int APused = UseSkill(skillUsed, targetedTile, myInstigator->CurrentAP);
+	myInstigator->SetAP(myInstigator->CurrentAP - APused);
 }
 
-void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn)
+int AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, int AP)
 {
   	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
 
 	int distance = path.Num();
 	if (distance == 0)
-		return;
+		return 0;
 
-	int MaxDistance = CurrentMovement + MovementSpeed * InstigatorPawn->CurrentAP;
+	int MaxDistance = CurrentMovement + MovementSpeed * AP;
 	if (MaxDistance == 0)
-		return;
+		return 0;
 
 	if (distance > MaxDistance)
 	{
@@ -211,8 +196,20 @@ void AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* I
 	{
 		int APUsed = FMath::DivideAndRoundUp(abs(CurrentMovement), MovementSpeed);
 		CurrentMovement += MovementSpeed * APUsed;
-		InstigatorPawn->SetAP(InstigatorPawn->CurrentAP - APUsed);
+
+		return APUsed;
 	}
+	return 0;
+}
+void AGameplayCharacter::WalkToTileAsCharacter(FInt32Vector2 targetedTile)
+{
+	int APused = WalkToTile(targetedTile, CurrentAP);
+	CurrentAP -= APused;
+}
+void AGameplayCharacter::WalkToTileAsCharacterAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* myInstigator)
+{
+	int APused = WalkToTile(targetedTile, myInstigator->CurrentAP);
+	myInstigator->SetAP(myInstigator->CurrentAP - APused);
 }
 
 void AGameplayCharacter::MoveToTile(FInt32Vector2 targetedTile)
@@ -236,4 +233,10 @@ void AGameplayCharacter::AddSkill(FName SkillKey, UCrazyGameInstance* GameInstan
 void AGameplayCharacter::OnTurnStart()
 {
  	CurrentMovement = MovementSpeed;
+	FillAP();
+}
+
+void AGameplayCharacter::FillAP()
+{
+	CurrentAP = MaxAP;
 }

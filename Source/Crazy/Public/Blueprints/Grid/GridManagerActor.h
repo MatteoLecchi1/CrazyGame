@@ -39,12 +39,13 @@ public:
 	UPROPERTY()
 	TArray<FInt32Vector2> CardinalDirections;
 
-protected:
+public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void OnConstruction(const FTransform& Transform) override;
+	void Initialize();
 
-public:	
+	virtual void OnConstruction(const FTransform& Transform) override;
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	UFUNCTION(BlueprintCallable)

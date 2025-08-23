@@ -32,6 +32,11 @@ public:
 	UPROPERTY()
 	int CurrentMovement = 0;
 
+	UPROPERTY()
+	int CurrentAP = 0;
+	UPROPERTY(EditAnywhere)
+	int MaxAP = 2;
+
 	UPROPERTY(EditAnywhere)
 	Factions Faction;
 
@@ -62,9 +67,17 @@ public:
 
 	float MyTakeDamage(float DamageAmount, DamageElements damageElement);
 
-	void UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn);
-	void WalkToTile(FInt32Vector2 targetedTile, AGameplayPawn* InstigatorPawn);
+	int UseSkill(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, int AP);
+	void UseSkillAsCharacter(FSkillDefinition skillUsed, FInt32Vector2 targetedTile);
+	void UseSkillAsGameplayPawn(FSkillDefinition skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
+
+	int WalkToTile(FInt32Vector2 targetedTile, int AP);
+	void WalkToTileAsCharacter(FInt32Vector2 targetedTile);
+	void WalkToTileAsCharacterAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
+
 	void MoveToTile(FInt32Vector2 targetedTile);
+
+	void FillAP();
 
 	void AddSkill(FName SkillKey, UCrazyGameInstance* GameInstance);
 	void OnTurnStart();

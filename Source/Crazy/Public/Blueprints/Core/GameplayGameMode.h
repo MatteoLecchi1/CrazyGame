@@ -17,6 +17,9 @@ class CRAZY_API AGameplayGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+
+	AGameplayGameMode();
+
 	UPROPERTY()
 	class APlayerPawn* PlayerPawn;
 	UPROPERTY()
@@ -27,8 +30,16 @@ public:
 	TArray<class AGameplayCharacter*> BanditCharacters;
 	UPROPERTY()
 	TArray<class AGameplayCharacter*> MonsterCharacters;
+
+	UPROPERTY()
+	int Tick1Timer = 0;
+
+	virtual void Tick(float DeltaTime) override;
 	
 	void GiveTurnToPlayer();
 	void GiveTurnToEnemy();
+
+	void AddCharacterToArrays(class AGameplayCharacter* Character);
+	void DropCharacterFromArrays(class AGameplayCharacter* Character);
 
 };

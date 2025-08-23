@@ -24,10 +24,10 @@ public:
 
 	UPROPERTY()
 	int CurrentAP = 0;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	int MaxAP = 0;
-	UPROPERTY(EditAnywhere)
-	int APregen = 1;
+	UPROPERTY()
+	int APregen = 0;
 
 protected:
 	// Called when the game starts or when spawned

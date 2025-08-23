@@ -29,6 +29,7 @@ enum class DamageElements : uint8
 	PIERCE = 1	UMETA(DisplayName = "PIERCE"),
 	BLUNT = 2	UMETA(DisplayName = "BLUNT"),
 	HEAL = 3	UMETA(DisplayName = "HEAL"),
+	MAGIC = 4	UMETA(DisplayName = "MAGIC"),
 };
 
 UENUM(BlueprintType)

@@ -16,14 +16,15 @@ AGameplayPawn::AGameplayPawn()
 void AGameplayPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 void AGameplayPawn::Initialize()
 {
 	Grid = Cast<AGridManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass()));
 
-	GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
-
 	SetActorTickEnabled(true);
+
+	GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
 }
 
 // Called every frame

@@ -54,16 +54,24 @@ void AEnemyPawn::OnTurnStart()
 				targetWalkTile = tile;
 				break;
 			}
-			character->WalkToTile(targetWalkTile, this);
+			character->WalkToTileAsCharacter(targetWalkTile);
 		}
+
+		int skillToUse = -1;
+
 		if (!(distance < character->Skills[0].MinRange))
 		{
-			character->UseSkill(character->Skills[0], targetCharacter->CurrentTile, this);
+			skillToUse = 0;
 		}
 		else
 		{
-			character->UseSkill(character->Skills[1], targetCharacter->CurrentTile, this);
+			skillToUse = 1;
 		}
+
+		if (skillToUse < 0)
+			return;
+
+		character->UseSkillAsCharacter(character->Skills[skillToUse], targetCharacter->CurrentTile);
 	}
 	EndTurn();
 }

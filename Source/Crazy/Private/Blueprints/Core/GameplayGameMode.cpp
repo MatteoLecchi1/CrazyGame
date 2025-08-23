@@ -7,6 +7,48 @@
 #include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
 #include "Blueprints/AI/EnemyPawn.h"
 
+
+AGameplayGameMode::AGameplayGameMode()
+{
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	PrimaryActorTick.bCanEverTick = true;
+}
+
+void AGameplayGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (Tick1Timer == 0) 
+	{
+		AActor* Grid = UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass());
+		if (AGridManagerActor* gameplayGrid = Cast<AGridManagerActor>(Grid))
+		{
+			gameplayGrid->Initialize();
+		}
+
+		TArray<AActor*> pawns;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(),AGameplayPawn::StaticClass(),pawns);
+		for (AActor* pawn : pawns) 
+		{
+			if (AGameplayPawn* gameplayPawn = Cast<AGameplayPawn>(pawn))
+			{
+				gameplayPawn->Initialize();
+			}
+		}
+
+		TArray<AActor*> Characters;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGameplayCharacter::StaticClass(), Characters);
+		for (AActor* Character : Characters)
+		{
+			if (AGameplayCharacter* gameplayCharacter = Cast<AGameplayCharacter>(Character))
+			{
+				gameplayCharacter->Initialize();
+			}
+		}
+
+		Tick1Timer = 1;
+	}
+}
+
 void AGameplayGameMode::GiveTurnToPlayer()
 {
 	for (auto character : PlayerCharacters) {
@@ -22,4 +64,44 @@ void AGameplayGameMode::GiveTurnToEnemy()
 	}
 
 	EnemyPawn->OnTurnStart();
+}
+
+void AGameplayGameMode::AddCharacterToArrays(class AGameplayCharacter* Character) 
+{
+	switch (Character->Faction)
+	{
+
+	case Factions::PLAYER:
+		PlayerCharacters.Add(Character);
+		PlayerPawn->UpdateAPValues();
+		break;
+	case Factions::BANDITS:
+		BanditCharacters.Add(Character);
+		break;
+	case Factions::MONSTERS:
+		MonsterCharacters.Add(Character);
+		break;
+	default:
+		break;
+	}
+}
+
+void AGameplayGameMode::DropCharacterFromArrays(class AGameplayCharacter* Character)
+{
+	switch (Character->Faction)
+	{
+
+	case Factions::PLAYER:
+		PlayerCharacters.Remove(Character);
+		PlayerPawn->UpdateAPValues();
+		break;
+	case Factions::BANDITS:
+		BanditCharacters.Remove(Character);
+		break;
+	case Factions::MONSTERS:
+		MonsterCharacters.Remove(Character);
+		break;
+	default:
+		break;
+	}
 }

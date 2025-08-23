@@ -20,6 +20,8 @@ public:
 	APlayerPawn();
 
 	UPROPERTY()
+	bool myEnableTick = false;
+
 	UCameraComponent* MainCamera;
 	UPROPERTY(editanywhere, Category = "Camera|Movement")
 	float cameraXSpeed = 1.f;
@@ -70,6 +72,11 @@ public:
 	UPROPERTY()
 	bool PlayersTurn = false;
 
+	UPROPERTY(EditAnywhere)
+	int MaxAPPerUnit = 0;
+	UPROPERTY(EditAnywhere)
+	int APPerUnit = 0;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -94,6 +101,7 @@ public:
 	void OnTurnStart() override;
 
 	void SetAP(int APAmmount) override;
+	void UpdateAPValues();
 
 	void ManageInputCameraX(float input);
 	void ManageInputCameraY(float input);

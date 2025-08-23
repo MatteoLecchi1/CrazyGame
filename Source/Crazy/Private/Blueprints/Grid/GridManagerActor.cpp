@@ -22,7 +22,9 @@ AGridManagerActor::AGridManagerActor()
 void AGridManagerActor::BeginPlay()
 {
 	Super::BeginPlay();
-
+}
+void AGridManagerActor::Initialize() 
+{
 	FActorSpawnParameters SpawnInfo;
 	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	PathFindingActor = GetWorld()->SpawnActor<APathFindingActor>();
@@ -30,6 +32,7 @@ void AGridManagerActor::BeginPlay()
 
 	SetCardinalDirections();
 }
+
 void AGridManagerActor::OnConstruction(const FTransform& Transform)
 {
 	SpawnGrid(sizeX, sizeY);

@@ -18,8 +18,7 @@ APlayerPawn::APlayerPawn()
 void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Initialize();
+	InputComponent->SetActive(false);
 }
 void APlayerPawn::Initialize()
 {
@@ -30,14 +29,18 @@ void APlayerPawn::Initialize()
 
 	if (HoveredTileWidgetClass)
 		HoveredTileWidget = GetWorld()->SpawnActor<AActor>(HoveredTileWidgetClass, FVector(0.f, 0.f, 9999999.f), GetActorRotation());
-
 	GameMode->PlayerPawn = this;
+	myEnableTick = true;
+	InputComponent->SetActive(true);
 }
 
 // Called every frame
 void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (!myEnableTick)
+		return;
 
 	ManageCamera(DeltaTime);
 	UpdateHoveredTile();
@@ -218,6 +221,14 @@ void APlayerPawn::SetAP(int APAmmount)
 	HUDInstance->UpdateAPValues(CurrentAP, MaxAP);
 }
 
+void APlayerPawn::UpdateAPValues()
+{
+	int Characters = GameMode->PlayerCharacters.Num();
+
+	MaxAP = Characters * MaxAPPerUnit;
+	APregen = Characters * APPerUnit;
+}
+
 void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -287,14 +298,14 @@ void APlayerPawn::Interaction1FRIENDLYCHARACTER()
 	if (hoveredTileDefinition->Occupant)
 		return;
 
-	SelectedCharacter->WalkToTile(HoveredTile, this);
+	SelectedCharacter->WalkToTileAsCharacterAsGameplayPawn(HoveredTile, this);
 
 	DestroyFRIENDLYCHARACTERStateVisuals();
 }
 void APlayerPawn::Interaction1SKILL()
 {
 	FTileDefinition* hoveredTileDefinition = Grid->GetTileDefinition(HoveredTile);
-	SelectedCharacter->UseSkill(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile, this);
+	SelectedCharacter->UseSkillAsGameplayPawn(SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile, this);
 }
 
 void APlayerPawn::ManageInputInteraction2()
