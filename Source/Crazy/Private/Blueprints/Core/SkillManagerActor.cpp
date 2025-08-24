@@ -52,12 +52,21 @@ TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUs
 	default:
 		break;
 	}
-	for (auto tile : AOETiles)
+	for (int i = 0; i< AOETiles.Num(); i++)
 	{
-		if (Grid->GetTileDefinition(tile))
+		if (Grid->GetTileDefinition(AOETiles[i]))
 		{
-			FVector location = Grid->GetTileDefinition(tile)->Location;
-			DrawDebugSphere(GetWorld(), location, 40, 16, FColor::Red, false, 3.f);
+			if(Grid->CheckForObstruction(targetedTile, AOETiles[i]).bBlockingHit)
+			{
+				AOETiles.RemoveAt(i);
+				i--;
+				continue;
+			}
+		}
+		else
+		{
+			AOETiles.RemoveAt(i);
+			i--;
 		}
 	}
 	return AOETiles;

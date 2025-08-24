@@ -48,16 +48,24 @@ public:
 	TSubclassOf<AActor> HoveredTileWidgetClass;
 	UPROPERTY()
 	AActor* HoveredTileWidget;
+
 	UPROPERTY()
 	TArray<AActor*> WalkingTileWidgets;
 	UPROPERTY(EditAnywhere, Category = "UI|TileVisuals")
 	TSubclassOf<AActor> WalkingTileWidgetclass;
+
 	UPROPERTY()
 	AActor* SkillWidget;
 	UPROPERTY(EditAnywhere, Category = "UI|TileVisuals")
 	TSubclassOf<AActor> SkillWidgetclass;
 	UPROPERTY(EditAnywhere, Category = "UI|TileVisuals")
 	TSubclassOf<AActor> InvalidSkillWidgetclass;
+
+	UPROPERTY()
+	TArray<AActor*> AOESkillTileWidgets;
+	UPROPERTY(EditAnywhere, Category = "UI|TileVisuals")
+	TSubclassOf<AActor> AOESkillTileWidgetsclass;
+
 	UPROPERTY()
 	UHUDWidget* HUDInstance;
 	UPROPERTY()
@@ -94,6 +102,7 @@ public:
 	void UpdateStateVisuals();
 	void UpdateFRIENDLYCHARACTERStateVisuals();
 	void UpdateSKILLStateVisuals();
+	void UpdateAOESKILLStateVisuals();
 	void DestroyFRIENDLYCHARACTERStateVisuals();
 	void DestroySKILLStateVisuals();
 

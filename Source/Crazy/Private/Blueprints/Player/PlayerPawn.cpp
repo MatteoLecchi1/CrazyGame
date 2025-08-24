@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Chaos/DebugDrawQueue.h"
+#include "Blueprints/Core/SkillManagerActor.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -146,15 +147,11 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 	FActorSpawnParameters SpawnInfo;
 	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	if (Distance <= maxRange + 0.1f && Distance >= minRange - 0.1f)
-	{
-
-	}
-	else if (Distance <= minRange - 0.1f)
+	if (Distance <= minRange - 0.1f)
 	{
 		isSkillValid = false;
 	}
-	else
+	else if (Distance >= maxRange + 0.1f)
 	{
 		isSkillValid = false;
 	}
@@ -178,6 +175,7 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 
 	if (isSkillValid)
 	{
+		UpdateAOESKILLStateVisuals();
 		SkillWidget = GetWorld()->SpawnActor<AActor>(SkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
 		SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
 	}
@@ -185,6 +183,30 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 	{
 		SkillWidget = GetWorld()->SpawnActor<AActor>(InvalidSkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
 		SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
+	}
+}
+void APlayerPawn::UpdateAOESKILLStateVisuals() 
+{
+	TArray<FInt32Vector2> AOETiles = GameMode->SkillManagerActor->FindSkillAOE(&SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile, SelectedCharacter);
+	int i = 0;
+
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	for (auto tile : AOETiles)
+	{
+		FVector tileLocation = Grid->GetTileDefinition(tile)->Location;
+		if (i < AOESkillTileWidgets.Num())
+		{
+			AOESkillTileWidgets[i]->SetActorLocation(tileLocation);
+			AOESkillTileWidgets[i]->SetActorHiddenInGame(false);
+		}
+		else
+		{
+			AActor* widget = GetWorld()->SpawnActor<AActor>(AOESkillTileWidgetsclass, tileLocation, FRotator::ZeroRotator, SpawnInfo);
+			AOESkillTileWidgets.Add(widget);
+		}
+		i++;
 	}
 }
 void APlayerPawn::DestroyFRIENDLYCHARACTERStateVisuals()
@@ -198,6 +220,11 @@ void APlayerPawn::DestroySKILLStateVisuals()
 {
 	if(SkillWidget)
 		SkillWidget->Destroy();
+
+	for (auto oldTile : AOESkillTileWidgets)
+	{
+		oldTile->SetActorHiddenInGame(true);
+	}
 }
 
 void APlayerPawn::EndTurn()
