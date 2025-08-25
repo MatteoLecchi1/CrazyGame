@@ -20,10 +20,12 @@ void AGameplayGameMode::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (Tick1Timer == 0) 
 	{
-		
 		AActor* Grid = UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass());
 		AGridManagerActor* gameplayGrid = Cast<AGridManagerActor>(Grid);
 		gameplayGrid->Initialize();
+
+		if (gameplayGrid->Tiles.Num() == 0)
+			gameplayGrid->SpawnGrid(gameplayGrid->sizeX, gameplayGrid->sizeY);
 
 		FActorSpawnParameters SpawnInfo;
 		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -50,6 +52,8 @@ void AGameplayGameMode::Tick(float DeltaTime)
 				gameplayCharacter->Initialize();
 			}
 		}
+		GiveTurnToPlayer();
+
 		Tick1Timer = 1;
 	}
 }
@@ -102,9 +106,11 @@ void AGameplayGameMode::DropCharacterFromArrays(class AGameplayCharacter* Charac
 		break;
 	case Factions::BANDITS:
 		BanditCharacters.Remove(Character);
+		EnemyPawn->EnemyTurnOrder.Remove(Character);
 		break;
 	case Factions::MONSTERS:
 		MonsterCharacters.Remove(Character);
+		EnemyPawn->EnemyTurnOrder.Remove(Character);
 		break;
 	default:
 		break;

@@ -176,13 +176,19 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 	if (isSkillValid)
 	{
 		UpdateAOESKILLStateVisuals();
-		SkillWidget = GetWorld()->SpawnActor<AActor>(SkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
-		SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
+		if(SelectedCharacter->Skills[SelectedSkillIndex].AOEtype != AOEType::DIRECTIONALAOE)
+		{
+			SkillWidget = GetWorld()->SpawnActor<AActor>(SkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
+			SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
+		}
 	}
 	else
 	{
-		SkillWidget = GetWorld()->SpawnActor<AActor>(InvalidSkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
-		SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
+		if (SelectedCharacter->Skills[SelectedSkillIndex].AOEtype != AOEType::DIRECTIONALAOE)
+		{
+			SkillWidget = GetWorld()->SpawnActor<AActor>(InvalidSkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
+			SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
+		}
 	}
 }
 void APlayerPawn::UpdateAOESKILLStateVisuals() 
@@ -232,6 +238,8 @@ void APlayerPawn::EndTurn()
 	Interaction2SKILL();
 	Interaction2FRIENDLYCHARACTER();
 	Interaction2NONE();
+
+	PlayersTurn = false;
 
 	GameMode->GiveTurnToEnemy();
 }
@@ -284,6 +292,8 @@ void APlayerPawn::ManageInputCameraZoom(float input)
 
 void APlayerPawn::ManageInputInteraction1()
 {
+	if (!PlayersTurn)
+		return;
 
 	switch (SelectionState)
 	{
@@ -338,6 +348,9 @@ void APlayerPawn::Interaction1SKILL()
 
 void APlayerPawn::ManageInputInteraction2()
 {
+	if (!PlayersTurn)
+		return;
+
 	switch (SelectionState)
 	{
 	case PlayerSelectionState::NONE:
@@ -376,6 +389,9 @@ void APlayerPawn::Interaction2SKILL()
 
 void APlayerPawn::ManageInputEndTurn() 
 {
+	if (!PlayersTurn)
+		return;
+
 	EndTurn();
 }
 

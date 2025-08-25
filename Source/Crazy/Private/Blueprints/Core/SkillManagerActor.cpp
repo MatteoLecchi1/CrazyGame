@@ -48,6 +48,7 @@ TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUs
 		break;
 	case AOEType::DIRECTIONALAOE:
 		AOETiles = FindDIRECTIONALAOESkillAOE(skillUsed, targetedTile, SkillUser);
+		targetedTile = SkillUser->CurrentTile;
 		break;
 	default:
 		break;
