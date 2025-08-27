@@ -67,6 +67,11 @@ public:
 	TSubclassOf<AActor> AOESkillTileWidgetsclass;
 
 	UPROPERTY()
+	TArray<AActor*> RangeSkillTileWidgets;
+	UPROPERTY(EditAnywhere, Category = "UI|TileVisuals")
+	TSubclassOf<AActor> RangeSkillTileWidgetsclass;
+
+	UPROPERTY()
 	UHUDWidget* HUDInstance;
 	UPROPERTY()
 	PlayerSelectionState SelectionState = PlayerSelectionState::NONE;
@@ -105,6 +110,9 @@ public:
 	void UpdateAOESKILLStateVisuals();
 	void DestroyFRIENDLYCHARACTERStateVisuals();
 	void DestroySKILLStateVisuals();
+
+	void UpdateSKILLRangeVisuals();
+	void DestroySKILLRangeVisuals();
 
 	void EndTurn();
 	void OnTurnStart() override;

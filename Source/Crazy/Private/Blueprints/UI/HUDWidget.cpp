@@ -29,6 +29,7 @@ void UHUDWidget::UpdateSelectedSkill()
 		playerpawn->SelectedSkillIndex = SelectedSkillItem->ListIndex;
 		playerpawn->SelectionState = PlayerSelectionState::SKILL;
 		playerpawn->DestroyFRIENDLYCHARACTERStateVisuals();
+		playerpawn->UpdateSKILLRangeVisuals();
 	}
 }
 void UHUDWidget::UpdateAPValues(int currentAP, int maxAP) 

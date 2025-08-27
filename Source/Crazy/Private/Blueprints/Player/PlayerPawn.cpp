@@ -184,10 +184,9 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 	}
 	else
 	{
-		if (SelectedCharacter->Skills[SelectedSkillIndex].AOEtype != AOEType::DIRECTIONALAOE)
+		if (SelectedCharacter->Skills[SelectedSkillIndex].AOEtype == AOEType::DIRECTIONALAOE)
 		{
-			SkillWidget = GetWorld()->SpawnActor<AActor>(InvalidSkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
-			SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
+			UpdateAOESKILLStateVisuals();
 		}
 	}
 }
@@ -228,6 +227,64 @@ void APlayerPawn::DestroySKILLStateVisuals()
 		SkillWidget->Destroy();
 
 	for (auto oldTile : AOESkillTileWidgets)
+	{
+		oldTile->SetActorHiddenInGame(true);
+	}
+}
+
+void APlayerPawn::UpdateSKILLRangeVisuals()
+{
+	DestroySKILLRangeVisuals();
+
+	if (SelectedSkillIndex < 0)
+		return;
+
+	FSkillDefinition currentSkill = SelectedCharacter->Skills[SelectedSkillIndex];
+
+	if (currentSkill.AOEtype == AOEType::DIRECTIONALAOE)
+		return;
+
+	FIntVector2 characterTile = SelectedCharacter->CurrentTile;
+	int maxRange = currentSkill.MaxRange;
+	int minRange = currentSkill.MinRange;
+	int i = 0;
+
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	for (int X = -maxRange; X <= maxRange; X++) 
+	{
+		for (int Y = -maxRange; Y <= maxRange; Y++)
+		{
+			FIntVector2 currentTile = characterTile + FIntVector2(X, Y);
+			int distance = Grid->CalculateDistance(characterTile, currentTile);
+			if (distance >= minRange && distance <= maxRange)
+			{
+				if (auto currentTileDefinition = Grid->GetTileDefinition(currentTile))
+				{
+					if (Grid->CheckForObstruction(characterTile,currentTile).bBlockingHit)
+						continue;
+
+					auto tileLocation = currentTileDefinition->Location;
+					if (i < AOESkillTileWidgets.Num())
+					{
+						RangeSkillTileWidgets[i]->SetActorLocation(tileLocation);
+						RangeSkillTileWidgets[i]->SetActorHiddenInGame(false);
+					}
+					else
+					{
+						AActor* widget = GetWorld()->SpawnActor<AActor>(RangeSkillTileWidgetsclass, tileLocation, FRotator::ZeroRotator, SpawnInfo);
+						RangeSkillTileWidgets.Add(widget);
+					}
+					i++;
+				}
+			}
+		}
+	}
+}
+void APlayerPawn::DestroySKILLRangeVisuals()
+{
+	for (auto oldTile : RangeSkillTileWidgets)
 	{
 		oldTile->SetActorHiddenInGame(true);
 	}
@@ -384,6 +441,7 @@ void APlayerPawn::Interaction2SKILL()
 	HUDInstance->UpdateSkillListVisuals();
 	SelectionState = PlayerSelectionState::FRIENDLYCHARACTER;
 
+	UpdateSKILLRangeVisuals();
 	DestroySKILLStateVisuals();
 }
 
