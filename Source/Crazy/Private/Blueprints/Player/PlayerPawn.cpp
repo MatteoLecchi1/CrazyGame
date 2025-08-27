@@ -147,6 +147,15 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 	FActorSpawnParameters SpawnInfo;
 	SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+	if (Distance <= minRange - 0.1f)
+	{
+		isSkillValid = false;
+	}
+	else if (Distance >= maxRange + 0.1f)
+	{
+		isSkillValid = false;
+	}
+
 	HitResult = Grid->CheckForObstructionBetweenLocations(traceStart, traceEnd);
 
 	if (HitResult.bBlockingHit)
@@ -162,47 +171,14 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 
 	traceEndDirection.Normalize();
 
-	Rotation = FMath::RadiansToDegrees(FMath::Atan2(-traceEndDirection.X, traceEndDirection.Y));
-
-	if (Distance <= minRange - 0.1f)
-	{
-		isSkillValid = false;
-
-		double angle = FMath::Atan2(traceEndDirection.X, traceEndDirection.Y);
-		double abs_cos_angle = fabs(cos(angle + FMath::DegreesToRadians(45)));
-		double abs_sin_angle = fabs(sin(angle + FMath::DegreesToRadians(45)));
-		if (sqrt(2) * minRange / 2 * abs_sin_angle <= sqrt(2) * minRange / 2 * abs_cos_angle)
-		{
-			lenght = sqrt(2) * minRange / 2 / abs_cos_angle;
-		}
-		else
-		{
-			lenght = sqrt(2) * minRange / 2 / abs_sin_angle;
-		}
-	}
-	else if (Distance >= maxRange + 0.1f)
-	{
-		isSkillValid = false;
-
-		double angle = FMath::Atan2(traceEndDirection.X, traceEndDirection.Y);
-		double abs_cos_angle = fabs(cos(angle + FMath::DegreesToRadians(45)));
-		double abs_sin_angle = fabs(sin(angle + FMath::DegreesToRadians(45)));
-		if (sqrt(2) * maxRange / 2 * abs_sin_angle <= sqrt(2) * maxRange / 2 * abs_cos_angle)
-		{
-			lenght = sqrt(2) * maxRange / 2 / abs_cos_angle;
-		}
-		else
-		{
-			lenght = sqrt(2) * maxRange / 2 / abs_sin_angle;
-		}
-	}
+	Rotation = FMath::RadiansToDegrees(FMath::Atan2(traceEndDirection.X, -traceEndDirection.Y));
 
 	if (isSkillValid)
 	{
 		UpdateAOESKILLStateVisuals();
 		if(SelectedCharacter->Skills[SelectedSkillIndex].AOEtype != AOEType::DIRECTIONALAOE)
 		{
-			SkillWidget = GetWorld()->SpawnActor<AActor>(SkillWidgetclass, traceStart, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
+			SkillWidget = GetWorld()->SpawnActor<AActor>(SkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
 			SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
 		}
 	}
@@ -210,7 +186,7 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 	{
 		if (SelectedCharacter->Skills[SelectedSkillIndex].AOEtype != AOEType::DIRECTIONALAOE)
 		{
-			SkillWidget = GetWorld()->SpawnActor<AActor>(InvalidSkillWidgetclass, traceStart, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
+			SkillWidget = GetWorld()->SpawnActor<AActor>(InvalidSkillWidgetclass, traceEnd, FRotator::MakeFromEuler(FVector(0.f, 0.f, Rotation)), SpawnInfo);
 			SkillWidget->SetActorScale3D(FVector(1.f, lenght, 1.f));
 		}
 	}
