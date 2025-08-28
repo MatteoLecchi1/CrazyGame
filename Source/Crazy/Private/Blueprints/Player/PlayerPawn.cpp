@@ -266,7 +266,7 @@ void APlayerPawn::UpdateSKILLRangeVisuals()
 						continue;
 
 					auto tileLocation = currentTileDefinition->Location;
-					if (i < AOESkillTileWidgets.Num())
+					if (i < RangeSkillTileWidgets.Num())
 					{
 						RangeSkillTileWidgets[i]->SetActorLocation(tileLocation);
 						RangeSkillTileWidgets[i]->SetActorHiddenInGame(false);
