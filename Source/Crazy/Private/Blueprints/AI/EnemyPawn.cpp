@@ -131,6 +131,7 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character)
 			default:
 				break;
 			}
+			FavoredSkillReward += skill.APCost * character->APWeight;
 			skillIndex++;
 		}
 
@@ -192,7 +193,7 @@ FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* c
 				int favoredDistanceOffset = abs(character->FavoredDistanceFromTarget - distance);
 				CurrentReward = favoredDistanceOffset * character->FavoredDistanceMultiplierPerTile;
 				CurrentReward += ApCost * character->APWeight;
-				CurrentReward += remaningWalkDistance * character->RemaningWalkDistanceWheight;
+				CurrentReward += remaningWalkDistance * character->RemaningWalkDistanceWeight;
 				if(CurrentReward > ReturnValue.Reward)
 				{
 					ReturnValue.Tile = currentTile; 

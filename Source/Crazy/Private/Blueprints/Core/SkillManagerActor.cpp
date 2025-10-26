@@ -38,7 +38,7 @@ float ASkillManagerActor::CheckManageSkill(FSkillDefinition* skillUsed, FInt32Ve
 {
 	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, SkillUser);
 	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
-	return CheckPlaySkill(skillUsed, Targets);
+	return CheckPlaySkill(skillUsed, Targets, SkillUser);
 }
 
 TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
@@ -166,7 +166,7 @@ void ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, TArray<AGameplay
 	}
 }
 
-float ASkillManagerActor::CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets)
+float ASkillManagerActor::CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser)
 {
 	float reward = 0;
 	for (AGameplayCharacter* Target : Targets)
@@ -174,7 +174,14 @@ float ASkillManagerActor::CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGa
 		for (auto damageInstance : skillUsed->Damage)
 		{
 			float damage = Target->CheckInflictedDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
-			reward += damage;
+			float rewardWeight = 1;
+
+			if (Target->Faction == SkillUser->Faction)
+				rewardWeight = SkillUser->FriendlyDamageWeight;
+			else
+				rewardWeight = SkillUser->DamageWeight;
+
+			reward += damage * rewardWeight;
 		}
 	}
 	return reward;

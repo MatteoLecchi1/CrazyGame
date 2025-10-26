@@ -66,7 +66,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
 	float FriendlyDamageWeight = -1;
 	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
-	float RemaningWalkDistanceWheight = 1;
+	float RemaningWalkDistanceWeight = 1;
 	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
 	float FavoredDistanceFromTarget = 1;
 	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
