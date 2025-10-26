@@ -60,5 +60,5 @@ public:
 	TArray<FInt32Vector2> FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
 	class AGameplayCharacter* FindClosestCharacter(class AGameplayCharacter* Startcharacter, TArray<class AGameplayCharacter*> characters);
 	TArray<FInt32Vector2> GetValidTileNeighbors(FInt32Vector2 StartTile);
-	TArray<FPathFindingData> GetValidTileNeighborsPathFindingData(FPathFindingData StartTile);
+	TArray<FPathFindingData> GetValidTileNeighborsPathFindingData(FPathFindingData CenterTile, FInt32Vector2 EndTile);
 };

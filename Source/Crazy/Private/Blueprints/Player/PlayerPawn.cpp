@@ -392,7 +392,7 @@ void APlayerPawn::Interaction1FRIENDLYCHARACTER()
 	if (hoveredTileDefinition->Occupant)
 		return;
 
-	SelectedCharacter->WalkToTileAsCharacterAsGameplayPawn(HoveredTile, this);
+	SelectedCharacter->WalkToTileAsGameplayPawn(HoveredTile, this);
 
 	DestroyFRIENDLYCHARACTERStateVisuals();
 }

@@ -21,34 +21,34 @@ public:
 	// Sets default values for this actor's properties
 	AGameplayCharacter();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	int CurrentHP = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	int MaxHP = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	int Armor = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	int MovementSpeed = 0;
 	UPROPERTY()
 	int CurrentMovement = 0;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = "CharacterStats|Combat")
 	int CurrentAP = 0;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
 	int MaxAP = 2;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
 	Factions Faction;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
 	TArray<FName> SkillList;
 	UPROPERTY()
 	TArray<FSkillDefinition> Skills;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
 	TMap<DamageElements, int> DamageResistanceMap;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, Category = "CharacterStats|Values")
 	FInt32Vector2 CurrentTile;
 	UPROPERTY()
 	AGridManagerActor* Grid;
@@ -58,6 +58,19 @@ public:
 
 	UPROPERTY()
 	AGameplayGameMode* GameMode;
+
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	float APWeight = -5;
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	float DamageWeight = 1;
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	float FriendlyDamageWeight = -1;
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	float RemaningWalkDistanceWheight = 1;
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	float FavoredDistanceFromTarget = 1;
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	float FavoredDistanceMultiplierPerTile = -3;
 
 protected:
 	// Called when the game starts or when spawned
@@ -69,6 +82,7 @@ public:
 	void Initialize();
 
 	float MyTakeDamage(float DamageAmount, DamageElements damageElement);
+	float CheckInflictedDamage(float DamageAmount, DamageElements damageElement);
 
 	int UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, int AP);
 	void UseSkillAsCharacter(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
@@ -76,7 +90,9 @@ public:
 
 	int WalkToTile(FInt32Vector2 targetedTile, int AP);
 	void WalkToTileAsCharacter(FInt32Vector2 targetedTile);
-	void WalkToTileAsCharacterAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
+	void WalkToTileAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
+	int CheckWalkToTileAPCost(FInt32Vector2 targetedTile);
+	FInt32Vector2 CheckWalkToTileAPCostAndRemaningWalk(FInt32Vector2 targetedTile);
 
 	void MoveToTile(FInt32Vector2 targetedTile);
 

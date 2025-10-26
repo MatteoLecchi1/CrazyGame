@@ -34,6 +34,13 @@ void ASkillManagerActor::ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 
 	PlaySkill(skillUsed, Targets);
 }
 
+float ASkillManagerActor::CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+{
+	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, SkillUser);
+	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
+	return CheckPlaySkill(skillUsed, Targets);
+}
+
 TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
 {
 	TArray<FInt32Vector2> AOETiles;
@@ -157,6 +164,20 @@ void ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, TArray<AGameplay
 			Target->MyTakeDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
 		}
 	}
+}
+
+float ASkillManagerActor::CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets)
+{
+	float reward = 0;
+	for (AGameplayCharacter* Target : Targets)
+	{
+		for (auto damageInstance : skillUsed->Damage)
+		{
+			float damage = Target->CheckInflictedDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
+			reward += damage;
+		}
+	}
+	return reward;
 }
 
 

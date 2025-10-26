@@ -56,7 +56,7 @@ void AGameplayCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-float AGameplayCharacter::MyTakeDamage(float DamageAmount, DamageElements damageElement)
+float AGameplayCharacter::CheckInflictedDamage(float DamageAmount, DamageElements damageElement)
 {
 	bool ignoreArmor = false;
 	bool canHeal = false;
@@ -65,7 +65,7 @@ float AGameplayCharacter::MyTakeDamage(float DamageAmount, DamageElements damage
 	float MinDamage = 0.f;
 	float MaxDamage = 999999.f;
 
-	if (int* damageResistance = DamageResistanceMap.Find(damageElement)) 
+	if (int* damageResistance = DamageResistanceMap.Find(damageElement))
 	{
 		damageMultiplier = *damageResistance;
 	}
@@ -105,6 +105,12 @@ float AGameplayCharacter::MyTakeDamage(float DamageAmount, DamageElements damage
 		MaxDamage);
 
 	int totalDamage = FMath::TruncToInt(PostMultiplierDamage);
+
+	return totalDamage;
+}
+float AGameplayCharacter::MyTakeDamage(float DamageAmount, DamageElements damageElement)
+{
+	int totalDamage = CheckInflictedDamage(DamageAmount, damageElement);
 
 	CurrentHP = CurrentHP - totalDamage;
 
@@ -201,12 +207,56 @@ void AGameplayCharacter::WalkToTileAsCharacter(FInt32Vector2 targetedTile)
 	int APused = WalkToTile(targetedTile, CurrentAP);
 	CurrentAP -= APused;
 }
-void AGameplayCharacter::WalkToTileAsCharacterAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* myInstigator)
+void AGameplayCharacter::WalkToTileAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* myInstigator)
 {
 	int APused = WalkToTile(targetedTile, myInstigator->CurrentAP);
 	myInstigator->SetAP(myInstigator->CurrentAP - APused);
 }
+int AGameplayCharacter::CheckWalkToTileAPCost(FInt32Vector2 targetedTile)
+{
+	if(targetedTile.X == -1)
+		return 0;
+	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
 
+	int distance = path.Num();
+	if (distance == 0)
+		return 0;
+
+	auto CurrentCheckMovement = CurrentMovement;
+
+	CurrentCheckMovement -= distance;
+	if (CurrentCheckMovement < 0)
+	{
+		int APUsed = FMath::DivideAndRoundUp(abs(CurrentCheckMovement), MovementSpeed);
+		CurrentCheckMovement += MovementSpeed * APUsed;
+
+		return APUsed;
+	}
+	return 0;
+}
+FInt32Vector2 AGameplayCharacter::CheckWalkToTileAPCostAndRemaningWalk(FInt32Vector2 targetedTile)
+{
+	if (targetedTile.X == -1)
+		return FInt32Vector2(-1, -1);
+
+	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
+
+	int distance = path.Num();
+	if (distance == 0)
+		return FInt32Vector2(0, 0);
+
+	auto CurrentCheckMovement = CurrentMovement;
+
+	CurrentCheckMovement -= distance;
+	if (CurrentCheckMovement < 0)
+	{
+		int APUsed = FMath::DivideAndRoundUp(abs(CurrentCheckMovement), MovementSpeed);
+		CurrentCheckMovement += MovementSpeed * APUsed;
+
+		return FInt32Vector2(APUsed, CurrentCheckMovement);
+	}
+	return FInt32Vector2(0,CurrentCheckMovement);
+}
 void AGameplayCharacter::MoveToTile(FInt32Vector2 targetedTile)
 {
 	FTileDefinition* currentTileDefinition = Grid->GetTileDefinition(CurrentTile);

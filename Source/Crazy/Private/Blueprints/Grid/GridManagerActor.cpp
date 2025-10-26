@@ -233,26 +233,26 @@ TArray<FInt32Vector2> AGridManagerActor::GetValidTileNeighbors(FInt32Vector2 Sta
 	}
 	return TilesFound;
 }
-TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData(FPathFindingData StartTile)
+TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData(FPathFindingData CenterTile, FInt32Vector2 EndTile)
 {
 	TArray<FPathFindingData> TilesFound;
 	for (auto direction : CardinalDirections)
 	{
-		direction += StartTile.Index;
+		direction += CenterTile.Index;
 
-		if (StartTile.PreviousIndex == direction)
+		if (CenterTile.PreviousIndex == direction)
 			continue;
 
 		if (auto definition = GetTileDefinition(direction))
 		{
-			if (definition->Occupant)
+			if (definition->Occupant && EndTile != direction)
 				continue;
-			if (definition->tileType != TileType::WALKABLE)
+			if (definition->tileType != TileType::WALKABLE && EndTile != direction)
 				continue;
 
 			FPathFindingData TileDataFound;
 			TileDataFound.Index = direction;
-			TileDataFound.PreviousIndex = StartTile.Index;
+			TileDataFound.PreviousIndex = CenterTile.Index;
 			TileDataFound.CostToEnterTile = 1;
 			TilesFound.Add(TileDataFound);
 		}

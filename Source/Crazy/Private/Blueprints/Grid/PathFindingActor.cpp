@@ -60,7 +60,7 @@ void APathFindingActor::DiscoverTile(FPathFindingData TileData)
 bool APathFindingActor::AnalyseNextDiscoveredTile()
 {
 	CurrentDiscoveredTile = PullCheapestTileOutOfDiscoveredList();
-	CurrentNeighbors = GridManager->GetValidTileNeighborsPathFindingData(CurrentDiscoveredTile);
+	CurrentNeighbors = GridManager->GetValidTileNeighborsPathFindingData(CurrentDiscoveredTile,CurrentEndTile);
 
 	while (CurrentNeighbors.Num() > 0)
 	{
@@ -79,10 +79,16 @@ TArray<FInt32Vector2> APathFindingActor::GeneratePath()
 	TArray<FInt32Vector2> InvertedPath;
 	TArray<FInt32Vector2> ReturnPath;
 
-	while (current != CurrentStartTile) 
+	if(GridManager->GetTileDefinition(current)->Occupant)
 	{
 		FPathFindingData* Next = PathFindingData.Find(current);
+		current = Next->PreviousIndex;
+	}
+
+	while (current != CurrentStartTile) 
+	{
 		InvertedPath.Add(current);
+		FPathFindingData* Next = PathFindingData.Find(current);
 		current = Next->PreviousIndex;
 	}
 	for (int i = InvertedPath.Num()-1; i >= 0; i--) 
