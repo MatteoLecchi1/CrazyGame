@@ -34,8 +34,8 @@ void AEnemyPawn::OnTurnStart()
 	for (auto character : characters)
 	{
 		FTimerHandle TimerHandle;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, FName("PlayCharacterTurn"), character);
+		FTimerDelegate Delegate; 
+		Delegate.BindUFunction(this, FName("PlayCharacterTurn"), character, GameMode->PlayerCharacters);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, Delegate, DelayBetweenTurns * i + 0.01f, false);
 		i++;
 	}
@@ -46,7 +46,7 @@ void AEnemyPawn::OnTurnStart()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, Delegate, DelayBetweenTurns * i + 0.01f, false);
 }
 
-void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character)
+void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets)
 {
 	int FavoredSkillIndex  = -1;
 	FIntVector2 FavoredTileToWalkTo = FIntVector2(-1, -1);
@@ -54,9 +54,8 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character)
 	int currentSkillIndex = 0;
 	float FavoredSkillReward = MinimumAcceptableReward;
 
-	for (auto PossibleTarget : GameMode->PlayerCharacters) 
+	for (auto PossibleTarget : PossibleTargets)
 	{
-		float currentSkillReward = MinimumAcceptableReward;
 		FIntVector2 TileToWalkTo = FIntVector2(-1, -1);
 		FIntVector2 TileToTarget = FIntVector2(-1, -1);
 
@@ -64,17 +63,19 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character)
 
 		for (auto skill : character->Skills)
 		{
+			float currentSkillReward = MinimumAcceptableReward;
+
 			if (skill.APCost > character->CurrentAP)
 				continue;
 			if (skill.CurrentCooldown > 0)
 				continue;
 
-			float offsetReward = -1;
+			float offsetReward = MinimumAcceptableReward;
 			FTileAndReward tile;
 			switch (skill.AOEtype)
 			{
 			case AOEType::SINGLETILE:
-				tile = FindFavoredTileToUseSkill(character, skill, PossibleTarget->CurrentTile);
+				tile = FindFavoredTileToUseSkill(character, PossibleTargets, skill, PossibleTarget->CurrentTile);
 
 				if (tile.Tile.X == -1)
 					continue;
@@ -89,21 +90,22 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character)
 			case AOEType::AOE:
 				for(auto offset : skill.AOETiles)
 				{
-					if (!Grid->GetTileDefinition(PossibleTarget->CurrentTile + offset))
+					FIntVector2 offsetTile = PossibleTarget->CurrentTile + offset;
+					if (!Grid->GetTileDefinition(offsetTile))
 						continue;
-					tile = FindFavoredTileToUseSkill(character, skill, PossibleTarget->CurrentTile + offset);
+					tile = FindFavoredTileToUseSkill(character, PossibleTargets, skill, offsetTile);
 
 					if(tile.Tile.X == -1)
 						continue;
 
-					offsetReward = GameMode->SkillManagerActor->CheckManageSkill(&skill, PossibleTarget->CurrentTile + offset, character);
+					offsetReward = tile.Reward;
+					offsetReward += GameMode->SkillManagerActor->CheckManageSkill(&skill, offsetTile, character);
 
 					if (offsetReward > currentSkillReward)
 					{
-						currentSkillReward = tile.Reward;
 						currentSkillReward = offsetReward; 
 						TileToWalkTo = tile.Tile;
-						TileToTarget = PossibleTarget->CurrentTile + offset;
+						TileToTarget = offsetTile;
 						currentSkillIndex = skillIndex;
 					}
 				}
@@ -131,17 +133,20 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character)
 			default:
 				break;
 			}
-			FavoredSkillReward += skill.APCost * character->APWeight;
+
+			currentSkillReward += skill.APCost * character->APWeight;
+
+			if (currentSkillReward > FavoredSkillReward)
+			{
+				FavoredSkillReward = currentSkillReward;
+				FavoredTileToTarget = TileToTarget;
+				FavoredTileToWalkTo = TileToWalkTo;
+				FavoredSkillIndex = currentSkillIndex;
+			}
+
 			skillIndex++;
 		}
 
-		if (FavoredSkillReward < currentSkillReward) 
-		{
-			FavoredSkillReward = currentSkillReward;
-			FavoredTileToTarget = TileToTarget;
-			FavoredTileToWalkTo = TileToWalkTo;
-			FavoredSkillIndex = currentSkillIndex;
-		}
 	}
 	if (FavoredSkillReward > MinimumAcceptableReward)
 	{
@@ -154,7 +159,7 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character)
 		GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, character->Skills[FavoredSkillIndex].SkillDysplayName.ToString() + ", now on cooldown for " + str);
 	}
 }
-FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* character, FSkillDefinition skill, FInt32Vector2 TargetTile)
+FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FSkillDefinition skill, FInt32Vector2 TargetTile)
 {
 	int maxRange = skill.MaxRange;
 	int minRange = skill.MinRange;
@@ -183,14 +188,27 @@ FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* c
 				if (Grid->CheckForObstruction(TargetTile, currentTile).bBlockingHit)
 					continue;
 
-				FIntVector2 walkCost = character->CheckWalkToTileAPCostAndRemaningWalk(currentTile);
+				FIntVector2 walkCost;
+				if(currentTileDefinition->Occupant == character)
+				{
+					walkCost.X = 0;
+					walkCost.Y = character->CurrentMovement;
+				}
+				else
+				{
+					walkCost = character->CheckWalkToTileAPCostAndRemaningWalk(currentTile);
+				}
 				int ApCost = walkCost.X;
 				int remaningWalkDistance = walkCost.Y;
 
 				if (ApCost + skill.APCost > character->CurrentAP)
 					continue;
 
-				int favoredDistanceOffset = abs(character->FavoredDistanceFromTarget - distance);
+				auto closestCharacterTile = Grid->FindClosestCharacter(character, PossibleTargets)->CurrentTile;
+
+				auto distanceFromClosestCharacter = Grid->CalculateDistance(currentTile, closestCharacterTile);
+
+				int favoredDistanceOffset = abs(character->FavoredDistanceFromTarget - distanceFromClosestCharacter);
 				CurrentReward = favoredDistanceOffset * character->FavoredDistanceMultiplierPerTile;
 				CurrentReward += ApCost * character->APWeight;
 				CurrentReward += remaningWalkDistance * character->RemaningWalkDistanceWeight;

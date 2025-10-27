@@ -171,6 +171,8 @@ float ASkillManagerActor::CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGa
 	float reward = 0;
 	for (AGameplayCharacter* Target : Targets)
 	{
+		if (Target == SkillUser)
+			continue;
 		for (auto damageInstance : skillUsed->Damage)
 		{
 			float damage = Target->CheckInflictedDamage(damageInstance.DamageAmount, damageInstance.DamageElement);

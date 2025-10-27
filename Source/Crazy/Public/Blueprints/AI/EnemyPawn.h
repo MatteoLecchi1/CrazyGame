@@ -47,8 +47,8 @@ public:
 	void Initialize() override;
 
 	UFUNCTION()
-	void PlayCharacterTurn(class AGameplayCharacter* character);
-	FTileAndReward FindFavoredTileToUseSkill(class AGameplayCharacter* character, FSkillDefinition skill, FInt32Vector2 TargetTile);
+	void PlayCharacterTurn(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets);
+	FTileAndReward FindFavoredTileToUseSkill(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FSkillDefinition skill, FInt32Vector2 TargetTile);
 	void OnTurnStart() override;
 	UFUNCTION()
 	void EndTurn();
