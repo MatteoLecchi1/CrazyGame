@@ -31,11 +31,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
-	float CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
-	TArray<FInt32Vector2> FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
-	TArray<FInt32Vector2> FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
-	TArray<FInt32Vector2> FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
+	void ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser);
+	float CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser);
+	TArray<FInt32Vector2> FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
+	TArray<FInt32Vector2> FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
+	TArray<FInt32Vector2> FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
 
 	TArray<AGameplayCharacter*> FindSkillTargets(FSkillDefinition* skillUsed, TArray<FInt32Vector2> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
 	void PlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets);

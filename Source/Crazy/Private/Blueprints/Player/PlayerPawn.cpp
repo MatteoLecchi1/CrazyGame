@@ -192,7 +192,7 @@ void APlayerPawn::UpdateSKILLStateVisuals()
 }
 void APlayerPawn::UpdateAOESKILLStateVisuals() 
 {
-	TArray<FInt32Vector2> AOETiles = GameMode->SkillManagerActor->FindSkillAOE(&SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile, SelectedCharacter);
+	TArray<FInt32Vector2> AOETiles = GameMode->SkillManagerActor->FindSkillAOE(&SelectedCharacter->Skills[SelectedSkillIndex], HoveredTile, SelectedCharacter->CurrentTile);
 	int i = 0;
 
 	FActorSpawnParameters SpawnInfo;

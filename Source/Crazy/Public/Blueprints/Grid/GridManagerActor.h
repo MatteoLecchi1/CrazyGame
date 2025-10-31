@@ -61,4 +61,5 @@ public:
 	class AGameplayCharacter* FindClosestCharacter(class AGameplayCharacter* Startcharacter, TArray<class AGameplayCharacter*> characters);
 	TArray<FInt32Vector2> GetValidTileNeighbors(FInt32Vector2 StartTile);
 	TArray<FPathFindingData> GetValidTileNeighborsPathFindingData(FPathFindingData CenterTile, FInt32Vector2 EndTile);
+	FInt32Vector2 RotateOffset(FInt32Vector2 offset, int rotation);
 };

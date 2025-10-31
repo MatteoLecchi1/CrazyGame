@@ -27,21 +27,21 @@ void ASkillManagerActor::Tick(float DeltaTime)
 
 }
 
-void ASkillManagerActor::ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+void ASkillManagerActor::ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser)
 {
-	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, SkillUser);
+	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
 	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
 	PlaySkill(skillUsed, Targets);
 }
 
-float ASkillManagerActor::CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+float ASkillManagerActor::CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser)
 {
-	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, SkillUser);
+	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
 	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
 	return CheckPlaySkill(skillUsed, Targets, SkillUser);
 }
 
-TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile)
 {
 	TArray<FInt32Vector2> AOETiles;
 
@@ -51,11 +51,11 @@ TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUs
 		AOETiles.Add(targetedTile);
 		break;
 	case AOEType::AOE:
-		AOETiles = FindAOESkillAOE(skillUsed, targetedTile, SkillUser);
+		AOETiles = FindAOESkillAOE(skillUsed, targetedTile);
 		break;
 	case AOEType::DIRECTIONALAOE:
-		AOETiles = FindDIRECTIONALAOESkillAOE(skillUsed, targetedTile, SkillUser);
-		targetedTile = SkillUser->CurrentTile;
+		AOETiles = FindDIRECTIONALAOESkillAOE(skillUsed, targetedTile, StartTile);
+		targetedTile = StartTile;
 		break;
 	default:
 		break;
@@ -79,7 +79,7 @@ TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUs
 	}
 	return AOETiles;
 }
-TArray<FInt32Vector2> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+TArray<FInt32Vector2> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
 {
 	TArray<FInt32Vector2> AOETiles = skillUsed->AOETiles;
 	for (int i = 0; i <AOETiles.Num(); i++) 
@@ -89,50 +89,31 @@ TArray<FInt32Vector2> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skil
 	return AOETiles;
 }
 
-TArray<FInt32Vector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+TArray<FInt32Vector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile)
 {
-	FInt32Vector2 relativeTargetedTile = SkillUser->CurrentTile - targetedTile;
+	FInt32Vector2 relativeTargetedTile = StartTile - targetedTile;
 	int TargetAreaDirection = 0;
 	if (abs(relativeTargetedTile.X) > abs(relativeTargetedTile.Y))
 	{
 		if (relativeTargetedTile.X > 0)
-			TargetAreaDirection = 0;
+			TargetAreaDirection = 2;
 		else
-			TargetAreaDirection = 1;
+			TargetAreaDirection = 0;
 	}
 	else
 	{
 		if (relativeTargetedTile.Y > 0)
-			TargetAreaDirection = 2;
+			TargetAreaDirection = 1;
 		else
 			TargetAreaDirection = 3;
 	}
 
 	TArray<FInt32Vector2> AOETiles = skillUsed->AOETiles;
-	int X = 0;
+	
 	for (int i = 0; i < AOETiles.Num(); i++)
 	{
-		switch (TargetAreaDirection)
-		{
-		case 0:
-			AOETiles[i].X *= -1;
-			break;
-		case 1:
-			break;
-		case 2:
-			X = AOETiles[i].X;
-			AOETiles[i].X = AOETiles[i].Y;
-			AOETiles[i].Y = X * -1;
-			break;
-		case 3:
-			X = AOETiles[i].X;
-			AOETiles[i].X = AOETiles[i].Y;
-			AOETiles[i].Y = X;
-			break;
-		default:
-			break;
-		}
-		AOETiles[i] += SkillUser->CurrentTile;
+		AOETiles[i] = Grid->RotateOffset(AOETiles[i], TargetAreaDirection);
+		AOETiles[i] += StartTile;
 	}
 	return AOETiles;
 }

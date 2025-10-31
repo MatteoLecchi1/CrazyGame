@@ -259,3 +259,28 @@ TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData
 	}
 	return TilesFound;
 }
+FInt32Vector2 AGridManagerActor::RotateOffset(FInt32Vector2 offset, int rotation)
+{
+	int X = 0;
+	switch (rotation)
+	{
+	case 0:
+		break;
+	case 1:
+		X = offset.X;
+		offset.X = offset.Y;
+		offset.Y = X * -1;
+		break;
+	case 2:
+		offset.X *= -1;
+		break;
+	case 3:
+		X = offset.X;
+		offset.X = offset.Y;
+		offset.Y = X;
+		break;
+	default:
+		break;
+	}
+	return offset;
+}

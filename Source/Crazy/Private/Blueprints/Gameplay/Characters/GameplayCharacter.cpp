@@ -154,7 +154,7 @@ int AGameplayCharacter::UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targ
 	if (Grid->CheckForObstruction(CurrentTile, targetedTile).bBlockingHit)
 		return 0;
 
-	GameMode->SkillManagerActor->ManageSkill(skillUsed, targetedTile,this);
+	GameMode->SkillManagerActor->ManageSkill(skillUsed, targetedTile, CurrentTile,this);
 
 	skillUsed->CurrentCooldown = skillUsed->Cooldown;
 

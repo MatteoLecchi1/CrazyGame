@@ -49,6 +49,7 @@ public:
 	UFUNCTION()
 	void PlayCharacterTurn(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets);
 	FTileAndReward FindFavoredTileToUseSkill(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FSkillDefinition skill, FInt32Vector2 TargetTile);
+	float CalculateDistanceReward(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FInt32Vector2 TargetTile);
 	void OnTurnStart() override;
 	UFUNCTION()
 	void EndTurn();
