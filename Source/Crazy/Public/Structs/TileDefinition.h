@@ -110,6 +110,8 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	AOEType AOEtype = AOEType::SINGLETILE;
 	UPROPERTY(EditAnywhere,Category = "AOE")
 	TArray<FInt32Vector2> AOETiles = { FInt32Vector2(0, 0)};
+	UPROPERTY(EditAnywhere, Category = "AOE")
+	TArray<FInt32Vector2> AOEPushDirections = { FInt32Vector2(0, 0) };
 };
 USTRUCT(BlueprintType)
 struct CRAZY_API FPathFindingData

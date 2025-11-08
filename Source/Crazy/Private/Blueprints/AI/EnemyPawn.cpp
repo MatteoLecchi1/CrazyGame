@@ -122,6 +122,10 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character, TArray<AGamepl
 						if (!currentTileDefinition)
 							continue;
 
+						if (currentTileDefinition->Occupant)
+							if (currentTileDefinition->Occupant != character)
+								continue;
+
 						FIntVector2 walkCost;
 						if (currentTileDefinition->Occupant == character)
 						{
@@ -208,7 +212,7 @@ FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* c
 			if (Grid->CheckForObstruction(TargetTile, currentTile).bBlockingHit)
 				continue;
 
-			if (currentTileDefinition->Occupant )
+			if (currentTileDefinition->Occupant)
 					if(currentTileDefinition->Occupant != character)
 						continue;
 
