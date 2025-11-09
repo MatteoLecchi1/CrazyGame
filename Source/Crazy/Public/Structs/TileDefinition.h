@@ -94,6 +94,8 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FDamageDefinition> Damage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int SingleTilePushForce = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int MinRange = 0;

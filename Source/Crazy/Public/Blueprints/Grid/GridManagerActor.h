@@ -32,6 +32,9 @@ public:
 	UPROPERTY(editanywhere)
 	TEnumAsByte<ECollisionChannel> ObstructionChannel = ECC_Pawn;
 
+	UPROPERTY(editanywhere)
+	TEnumAsByte<ECollisionChannel> PushChannel = ECC_Pawn;
+
 	UPROPERTY()
 	TMap<FInt32Vector2,FTileDefinition> Tiles;
 	UPROPERTY()
@@ -53,9 +56,12 @@ public:
 	void SpawnSpawnSingleTile(int X, int Y);
 	void SetCardinalDirections();
 	FInt32Vector2 GetTileAtLocation(FVector location);
+
 	int CalculateDistance(FInt32Vector2 Tile1, FInt32Vector2 Tile2);
 	FHitResult CheckForObstruction(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
+	FHitResult CheckForObstructionUsingSphere(FInt32Vector2 StartTile, FInt32Vector2 EndTile, AActor* character);
 	FHitResult CheckForObstructionBetweenLocations(FVector traceStart, FVector traceEnd);
+
 	FTileDefinition* GetTileDefinition(FInt32Vector2 TileKey);
 	TArray<FInt32Vector2> FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
 	class AGameplayCharacter* FindClosestCharacter(class AGameplayCharacter* Startcharacter, TArray<class AGameplayCharacter*> characters);

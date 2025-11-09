@@ -257,6 +257,44 @@ FInt32Vector2 AGameplayCharacter::CheckWalkToTileAPCostAndRemaningWalk(FInt32Vec
 	}
 	return FInt32Vector2(0,CurrentCheckMovement);
 }
+
+float AGameplayCharacter::PushToTile(FInt32Vector2 targetedTile)
+{
+	if (CurrentTile == targetedTile)
+		return 0;
+	
+	FHitResult hitResult= Grid->CheckForObstructionUsingSphere(CurrentTile, targetedTile,this);
+	float damageDealt = 0;
+	if (hitResult.bBlockingHit)
+	{
+		auto distance = hitResult.Distance;
+		auto offset = hitResult.TraceEnd - hitResult.TraceStart;
+		auto direction = offset;
+		direction.Normalize();
+		direction *= distance;
+		offset -= (offset - direction);
+		auto newPushLocation = offset + hitResult.TraceStart;
+		
+		targetedTile = Grid->GetTileAtLocation(newPushLocation);
+
+		damageDealt += PlayPushCollisionReaction();
+
+		if (auto other = Cast<AGameplayCharacter>(hitResult.GetActor())) 
+		{
+			damageDealt += other->PlayPushCollisionReaction();
+		}
+	}
+	
+	MoveToTile(targetedTile);
+
+	return damageDealt;
+}
+
+float AGameplayCharacter::PlayPushCollisionReaction()
+{
+	return MyTakeDamage(PushCollisionDamage,DamageElements::BLUNT);
+}
+
 void AGameplayCharacter::MoveToTile(FInt32Vector2 targetedTile)
 {
 	FTileDefinition* currentTileDefinition = Grid->GetTileDefinition(CurrentTile);

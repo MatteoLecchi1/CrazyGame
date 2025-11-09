@@ -29,26 +29,27 @@ void ASkillManagerActor::Tick(float DeltaTime)
 
 void ASkillManagerActor::ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser)
 {
-	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
-	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
+	TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
 	PlaySkill(skillUsed, Targets);
 }
 
 float ASkillManagerActor::CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser)
 {
-	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
-	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
-	return CheckPlaySkill(skillUsed, Targets, SkillUser);
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
+	TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
+	return CheckPlaySkill(skillUsed,Targets, SkillUser);
 }
 
-TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile)
+TArray<std::tuple<FInt32Vector2, FInt32Vector2>> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile)
 {
-	TArray<FInt32Vector2> AOETiles;
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> AOETiles;
 
 	switch (skillUsed->AOEtype)
 	{
 	case AOEType::SINGLETILE:
-		AOETiles.Add(targetedTile);
+
+		AOETiles = FindSINGLETILESkillAOE(skillUsed, StartTile, targetedTile);
 		break;
 	case AOEType::AOE:
 		AOETiles = FindAOESkillAOE(skillUsed, targetedTile);
@@ -62,9 +63,9 @@ TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUs
 	}
 	for (int i = 0; i< AOETiles.Num(); i++)
 	{
-		if (Grid->GetTileDefinition(AOETiles[i]))
+		if (Grid->GetTileDefinition(std::get<0>(AOETiles[i])))
 		{
-			if(Grid->CheckForObstruction(targetedTile, AOETiles[i]).bBlockingHit)
+			if(Grid->CheckForObstruction(targetedTile, std::get<0>(AOETiles[i])).bBlockingHit)
 			{
 				AOETiles.RemoveAt(i);
 				i--;
@@ -79,17 +80,43 @@ TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUs
 	}
 	return AOETiles;
 }
-TArray<FInt32Vector2> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
+
+
+TArray<std::tuple<FInt32Vector2, FInt32Vector2>> ASkillManagerActor::FindSINGLETILESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 StartTile, FInt32Vector2 targetedTile)
 {
-	TArray<FInt32Vector2> AOETiles = skillUsed->AOETiles;
-	for (int i = 0; i <AOETiles.Num(); i++) 
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> AOETiles;
+	
+	FVector endLocation = Grid->GetTileDefinition(targetedTile)->Location;
+	FVector startLocation = Grid->GetTileDefinition(StartTile)->Location;
+	FVector pushDirection = endLocation - startLocation;
+	pushDirection.Normalize();
+	auto pushAngle = FVector::DotProduct(pushDirection, FVector(1, 0, 0));
+
+	std::tuple<FInt32Vector2, FInt32Vector2> Tile = std::tuple<FInt32Vector2, FInt32Vector2>(targetedTile,targetedTile);
+	AOETiles.Add(Tile);
+
+	return AOETiles;
+}
+
+TArray<std::tuple<FInt32Vector2, FInt32Vector2>> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
+{
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> AOETiles;
+	for (int i = 0; i < skillUsed->AOETiles.Num(); i++)
 	{
-		AOETiles[i] += targetedTile;
+		FInt32Vector2 currentTargetedTile;
+		currentTargetedTile = skillUsed->AOETiles[i];
+		currentTargetedTile += targetedTile;
+
+		FInt32Vector2 currentPushTile;
+		currentPushTile = skillUsed->AOEPushDirections[i];
+		currentPushTile += targetedTile;
+
+		AOETiles.Add(std::tuple<FInt32Vector2, FInt32Vector2>(currentTargetedTile, currentPushTile));
 	}
 	return AOETiles;
 }
 
-TArray<FInt32Vector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile)
+TArray<std::tuple<FInt32Vector2, FInt32Vector2>> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile)
 {
 	FInt32Vector2 relativeTargetedTile = StartTile - targetedTile;
 	int TargetAreaDirection = 0;
@@ -108,58 +135,68 @@ TArray<FInt32Vector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefin
 			TargetAreaDirection = 3;
 	}
 
-	TArray<FInt32Vector2> AOETiles = skillUsed->AOETiles;
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> AOETiles;
 	
-	for (int i = 0; i < AOETiles.Num(); i++)
+	for (int i = 0; i < skillUsed->AOETiles.Num(); i++)
 	{
-		AOETiles[i] = Grid->RotateOffset(AOETiles[i], TargetAreaDirection);
-		AOETiles[i] += StartTile;
+		FInt32Vector2 currentTargetedTile;
+		currentTargetedTile = skillUsed->AOETiles[i];
+		currentTargetedTile = Grid->RotateOffset(currentTargetedTile, TargetAreaDirection);
+		currentTargetedTile += StartTile;
+
+		FInt32Vector2 currentPushTile;
+		currentPushTile = skillUsed->AOEPushDirections[i];
+		currentPushTile = Grid->RotateOffset(currentPushTile, TargetAreaDirection);
+		currentPushTile += StartTile;
+
+		AOETiles.Add(std::tuple<FInt32Vector2, FInt32Vector2>(currentTargetedTile, currentPushTile));
 	}
 	return AOETiles;
 }
 
-TArray<AGameplayCharacter*> ASkillManagerActor::FindSkillTargets(FSkillDefinition* skillUsed, TArray<FInt32Vector2> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> ASkillManagerActor::FindSkillTargets(FSkillDefinition* skillUsed, TArray<std::tuple<FInt32Vector2, FInt32Vector2>> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
 {
-	TArray<AGameplayCharacter*> Targets;
+	TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets;
 	for (auto tile : targetedTiles)
 	{
-		auto tileDefinition = Grid->GetTileDefinition(tile);
+		auto tileDefinition = Grid->GetTileDefinition(std::get<0>(tile));
 		if (!tileDefinition)
 			continue;
 		if (!tileDefinition->Occupant)
 			continue;
 		if (AGameplayCharacter* target = Cast<AGameplayCharacter>(tileDefinition->Occupant))
 		{
-			Targets.Add(target);
+			Targets.Add(std::tuple<AGameplayCharacter*, FInt32Vector2>(target,std::get<1>(tile)));
 		}
 	}
 	return Targets;
 }
 
-void ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets)
+void ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets)
 {
-	for (AGameplayCharacter* Target : Targets)
+	for (auto Target : Targets)
 	{
 		for (auto damageInstance : skillUsed->Damage)
 		{
-			Target->MyTakeDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
+			std::get<0>(Target)->MyTakeDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
 		}
+		std::get<0>(Target)->PushToTile(std::get<1>(Target));
 	}
 }
 
-float ASkillManagerActor::CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser)
+float ASkillManagerActor::CheckPlaySkill(FSkillDefinition* skillUsed, TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets, AGameplayCharacter* SkillUser)
 {
 	float reward = 0;
-	for (AGameplayCharacter* Target : Targets)
+	for (auto Target : Targets)
 	{
-		if (Target == SkillUser)
+		if (std::get<0>(Target) == SkillUser)
 			continue;
 		for (auto damageInstance : skillUsed->Damage)
 		{
-			float damage = Target->CheckInflictedDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
+			float damage = std::get<0>(Target)->CheckInflictedDamage(damageInstance.DamageAmount, damageInstance.DamageElement);
 			float rewardWeight = 1;
 
-			if (Target->Faction == SkillUser->Faction)
+			if (std::get<0>(Target)->Faction == SkillUser->Faction)
 				rewardWeight = SkillUser->FriendlyDamageWeight;
 			else
 				rewardWeight = SkillUser->DamageWeight;

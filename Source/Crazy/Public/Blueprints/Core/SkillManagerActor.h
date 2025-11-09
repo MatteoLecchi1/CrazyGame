@@ -33,11 +33,13 @@ public:
 
 	void ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser);
 	float CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser);
-	TArray<FInt32Vector2> FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
-	TArray<FInt32Vector2> FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
-	TArray<FInt32Vector2> FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
 
-	TArray<AGameplayCharacter*> FindSkillTargets(FSkillDefinition* skillUsed, TArray<FInt32Vector2> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
-	void PlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets);
-	float CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser);
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> FindSINGLETILESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 StartTile, FInt32Vector2 targetedTile);
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
+	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
+
+	TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> FindSkillTargets(FSkillDefinition* skillUsed, TArray<std::tuple<FInt32Vector2, FInt32Vector2>> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
+	void PlaySkill(FSkillDefinition* skillUsed, TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets);
+	float CheckPlaySkill(FSkillDefinition* skillUsed, TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets, AGameplayCharacter* SkillUser);
 };

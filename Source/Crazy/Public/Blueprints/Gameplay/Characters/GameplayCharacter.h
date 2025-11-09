@@ -48,6 +48,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
 	TMap<DamageElements, int> DamageResistanceMap;
 
+	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
+	int PushCollisionDamage;
+
 	UPROPERTY(VisibleAnywhere, Category = "CharacterStats|Values")
 	FInt32Vector2 CurrentTile;
 	UPROPERTY()
@@ -93,6 +96,11 @@ public:
 	void WalkToTileAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
 	int CheckWalkToTileAPCost(FInt32Vector2 targetedTile);
 	FInt32Vector2 CheckWalkToTileAPCostAndRemaningWalk(FInt32Vector2 targetedTile);
+
+	float PushToTile(FInt32Vector2 targetedTile);
+	float CheckPushToTile(FInt32Vector2 targetedTile);
+
+	float PlayPushCollisionReaction();
 
 	void MoveToTile(FInt32Vector2 targetedTile);
 

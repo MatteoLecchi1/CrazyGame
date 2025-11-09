@@ -177,8 +177,6 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character, TArray<AGamepl
 	{
 		character->WalkToTileAsCharacter(FavoredTileToWalkTo);
 		character->UseSkillAsCharacter(&character->Skills[FavoredSkillIndex], FavoredTileToTarget);
-		FString str = FString::FromInt(character->Skills[FavoredSkillIndex].CurrentCooldown);
-		GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, character->Skills[FavoredSkillIndex].SkillDysplayName.ToString() + ", now on cooldown for " + str);
 	}
 }
 FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FSkillDefinition skill, FInt32Vector2 TargetTile)

@@ -143,6 +143,23 @@ FHitResult AGridManagerActor::CheckForObstruction(FInt32Vector2 StartTile, FInt3
 
 	return HitResult;
 }
+FHitResult AGridManagerActor::CheckForObstructionUsingSphere(FInt32Vector2 StartTile, FInt32Vector2 EndTile, AActor* character)
+{
+	FHitResult HitResult;
+
+	FTileDefinition* startTileDefinition = GetTileDefinition(StartTile);
+
+	EndTile = StartTile - EndTile;
+
+	FVector traceStart = FVector(startTileDefinition->Location.X, startTileDefinition->Location.Y, 5.f);
+	FVector traceEnd = FVector((EndTile.X * TileSize) + traceStart.X, (EndTile.Y * TileSize) + traceStart.Y, 5.f);
+
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(character);
+	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), traceStart, traceEnd, 50.f, UEngineTypes::ConvertToTraceType(PushChannel), false, ActorsToIgnore,EDrawDebugTrace::ForDuration, HitResult,true);
+
+	return HitResult;
+}
 FHitResult AGridManagerActor::CheckForObstructionBetweenLocations(FVector traceStart, FVector traceEnd)
 {
 	FHitResult HitResult;
