@@ -80,7 +80,16 @@ struct CRAZY_API FDamageDefinition : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	DamageElements DamageElement = DamageElements::SLASH;
 };
+USTRUCT(BlueprintType)
+struct CRAZY_API FAOEDefinition : public FTableRowBase
+{
+	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	TArray<FInt32Vector2> AOETiles = { FInt32Vector2(0, 0) };
+	UPROPERTY(EditAnywhere)
+	TArray<FInt32Vector2> AOEPushDirections = { FInt32Vector2(0, 0) };
+};
 USTRUCT(BlueprintType)
 struct CRAZY_API FSkillDefinition : public FTableRowBase
 {
@@ -107,13 +116,10 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	int Cooldown = 1;
 	UPROPERTY()
 	int CurrentCooldown = 0;
-
-	UPROPERTY(EditAnywhere,Category = "AOE")
-	AOEType AOEtype = AOEType::SINGLETILE;
-	UPROPERTY(EditAnywhere,Category = "AOE")
-	TArray<FInt32Vector2> AOETiles = { FInt32Vector2(0, 0)};
 	UPROPERTY(EditAnywhere, Category = "AOE")
-	TArray<FInt32Vector2> AOEPushDirections = { FInt32Vector2(0, 0) };
+	AOEType AOEtype = AOEType::SINGLETILE;
+	UPROPERTY(EditAnywhere, Category = "AOE")
+	FAOEDefinition AOEData;
 };
 USTRUCT(BlueprintType)
 struct CRAZY_API FPathFindingData

@@ -101,14 +101,14 @@ TArray<std::tuple<FInt32Vector2, FInt32Vector2>> ASkillManagerActor::FindSINGLET
 TArray<std::tuple<FInt32Vector2, FInt32Vector2>> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
 {
 	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> AOETiles;
-	for (int i = 0; i < skillUsed->AOETiles.Num(); i++)
+	for (int i = 0; i < skillUsed->AOEData.AOETiles.Num(); i++)
 	{
 		FInt32Vector2 currentTargetedTile;
-		currentTargetedTile = skillUsed->AOETiles[i];
+		currentTargetedTile = skillUsed->AOEData.AOETiles[i];
 		currentTargetedTile += targetedTile;
 
 		FInt32Vector2 currentPushTile;
-		currentPushTile = skillUsed->AOEPushDirections[i];
+		currentPushTile = skillUsed->AOEData.AOEPushDirections[i];
 		currentPushTile += targetedTile;
 
 		AOETiles.Add(std::tuple<FInt32Vector2, FInt32Vector2>(currentTargetedTile, currentPushTile));
@@ -137,15 +137,15 @@ TArray<std::tuple<FInt32Vector2, FInt32Vector2>> ASkillManagerActor::FindDIRECTI
 
 	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> AOETiles;
 	
-	for (int i = 0; i < skillUsed->AOETiles.Num(); i++)
+	for (int i = 0; i < skillUsed->AOEData.AOETiles.Num(); i++)
 	{
 		FInt32Vector2 currentTargetedTile;
-		currentTargetedTile = skillUsed->AOETiles[i];
+		currentTargetedTile = skillUsed->AOEData.AOETiles[i];
 		currentTargetedTile = Grid->RotateOffset(currentTargetedTile, TargetAreaDirection);
 		currentTargetedTile += StartTile;
 
 		FInt32Vector2 currentPushTile;
-		currentPushTile = skillUsed->AOEPushDirections[i];
+		currentPushTile = skillUsed->AOEData.AOEPushDirections[i];
 		currentPushTile = Grid->RotateOffset(currentPushTile, TargetAreaDirection);
 		currentPushTile += StartTile;
 

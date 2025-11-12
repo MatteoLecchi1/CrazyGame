@@ -88,7 +88,7 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character, TArray<AGamepl
 
 				break;
 			case AOEType::AOE:
-				for(auto offset : skill.AOETiles)
+				for(auto offset : skill.AOEData.AOETiles)
 				{
 					FIntVector2 offsetTile = PossibleTarget->CurrentTile + offset;
 					if (!Grid->GetTileDefinition(offsetTile))
@@ -111,7 +111,7 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character, TArray<AGamepl
 				}
 				break;
 			case AOEType::DIRECTIONALAOE:
-				for (auto offset : skill.AOETiles)
+				for (auto offset : skill.AOEData.AOETiles)
 				{
 					for(int i = 0; i < 4; i++)
 					{
