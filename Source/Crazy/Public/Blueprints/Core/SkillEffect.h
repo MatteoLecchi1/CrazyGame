@@ -17,5 +17,5 @@ class CRAZY_API USkillEffect : public UObject
 public:
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
-	float PlaySkillEffect(AGameplayCharacter* SkillUser, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*> &Targets);
+	float PlaySkillEffect(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*> &Targets);
 };

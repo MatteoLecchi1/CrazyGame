@@ -60,7 +60,7 @@ void APlayerPawn::UpdateHoveredTile()
 	if (!CursorHit.bBlockingHit)
 		return;
 
-	FInt32Vector2 newTile = Grid->GetTileAtLocation(CursorHit.Location);
+	FIntVector2 newTile = Grid->GetTileAtLocation(CursorHit.Location);
 	
 	if (newTile.X < 0)
 		return;
@@ -98,7 +98,7 @@ void APlayerPawn::UpdateFRIENDLYCHARACTERStateVisuals()
 {
 	DestroyFRIENDLYCHARACTERStateVisuals();
 
-	TArray<FInt32Vector2> path = Grid->FindPath(SelectedCharacter->CurrentTile, HoveredTile);
+	TArray<FIntVector2> path = Grid->FindPath(SelectedCharacter->CurrentTile, HoveredTile);
 	int maxWalkDistance = SelectedCharacter->CurrentMovement + SelectedCharacter->MovementSpeed * CurrentAP;
 
 	FActorSpawnParameters SpawnInfo;

@@ -19,17 +19,17 @@ public:
 	AGridManagerActor* GridManager;
 
 	UPROPERTY()
-	FInt32Vector2 CurrentStartTile;
+	FIntVector2 CurrentStartTile;
 	UPROPERTY()
-	FInt32Vector2 CurrentEndTile;
+	FIntVector2 CurrentEndTile;
 	UPROPERTY()
-	TArray<FInt32Vector2> DiscoveredTilesIndexes;
+	TArray<FIntVector2> DiscoveredTilesIndexes;
 	UPROPERTY()
 	TArray<int> DiscoveredTilesSortingCost;
 	UPROPERTY()
-	TArray<FInt32Vector2> AnalysedTilesIndexes;
+	TArray<FIntVector2> AnalysedTilesIndexes;
 	UPROPERTY()
-	TMap<FInt32Vector2, FPathFindingData> PathFindingData;
+	TMap<FIntVector2, FPathFindingData> PathFindingData;
 	UPROPERTY()
 	FPathFindingData CurrentDiscoveredTile;
 
@@ -43,11 +43,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	TArray<FInt32Vector2> FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
+	TArray<FIntVector2> FindPath(FIntVector2 StartTile, FIntVector2 EndTile);
 	void DiscoverTile(FPathFindingData TileData);
 	bool AnalyseNextDiscoveredTile();
-	int GetMinimumCostBetweenTwoTiles(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
-	TArray<FInt32Vector2> GeneratePath();
+	int GetMinimumCostBetweenTwoTiles(FIntVector2 StartTile, FIntVector2 EndTile);
+	TArray<FIntVector2> GeneratePath();
 	FPathFindingData PullCheapestTileOutOfDiscoveredList();
 	void InsertTileInDiscoveredArray(FPathFindingData TileData);
 	bool DiscoverNextNeighbor();

@@ -85,7 +85,7 @@ void AGridManagerActor::SpawnSpawnSingleTile(int X, int Y)
 	Spawntransform.SetLocation(FVector(TileXLocation, TileYLocation, 0.1f));
 	InstancedStaticMeshComponent->AddInstance(Spawntransform);
 
-	FInt32Vector2 newKey;
+	FIntVector2 newKey;
 	newKey.X = X;
 	newKey.Y = Y;
 
@@ -98,17 +98,17 @@ void AGridManagerActor::SpawnSpawnSingleTile(int X, int Y)
 void AGridManagerActor::SetCardinalDirections() 
 {
 	CardinalDirections.Empty();
-	CardinalDirections.Add(FInt32Vector2(0, 1));
-	CardinalDirections.Add(FInt32Vector2(0, -1));
-	CardinalDirections.Add(FInt32Vector2(1, 0));
-	CardinalDirections.Add(FInt32Vector2(-1, 0));
+	CardinalDirections.Add(FIntVector2(0, 1));
+	CardinalDirections.Add(FIntVector2(0, -1));
+	CardinalDirections.Add(FIntVector2(1, 0));
+	CardinalDirections.Add(FIntVector2(-1, 0));
 }
 
-FInt32Vector2 AGridManagerActor::GetTileAtLocation(FVector location)
+FIntVector2 AGridManagerActor::GetTileAtLocation(FVector location)
 {
 	FVector localLocation = GetActorTransform().InverseTransformPosition(location);
 
-	FInt32Vector2 TileKey;
+	FIntVector2 TileKey;
 	TileKey.X = FMath::RoundToInt(localLocation.X / TileSize);
 	TileKey.Y = FMath::RoundToInt(localLocation.Y / TileSize);
 
@@ -121,14 +121,14 @@ FInt32Vector2 AGridManagerActor::GetTileAtLocation(FVector location)
 	return TileKey;
 }
 
-int AGridManagerActor::CalculateDistance(FInt32Vector2 Tile1, FInt32Vector2 Tile2)
+int AGridManagerActor::CalculateDistance(FIntVector2 Tile1, FIntVector2 Tile2)
 {
 	return
 		FMath::Abs(Tile1.X - Tile2.X) +
 		FMath::Abs(Tile1.Y - Tile2.Y);
 }
 
-FHitResult AGridManagerActor::CheckForObstruction(FInt32Vector2 StartTile, FInt32Vector2 EndTile)
+FHitResult AGridManagerActor::CheckForObstruction(FIntVector2 StartTile, FIntVector2 EndTile)
 {
 	FHitResult HitResult;
 	FCollisionQueryParams CollisionParams;
@@ -143,7 +143,7 @@ FHitResult AGridManagerActor::CheckForObstruction(FInt32Vector2 StartTile, FInt3
 
 	return HitResult;
 }
-FHitResult AGridManagerActor::CheckForObstructionUsingSphere(FInt32Vector2 StartTile, FInt32Vector2 EndTile, AActor* character)
+FHitResult AGridManagerActor::CheckForObstructionUsingSphere(FIntVector2 StartTile, FIntVector2 EndTile, AActor* character)
 {
 	FHitResult HitResult;
 
@@ -172,7 +172,7 @@ FHitResult AGridManagerActor::CheckForObstructionBetweenLocations(FVector traceS
 	return HitResult;
 }
 
-FTileDefinition* AGridManagerActor::GetTileDefinition(FInt32Vector2 TileKey)
+FTileDefinition* AGridManagerActor::GetTileDefinition(FIntVector2 TileKey)
 {
 	if (Tiles.Contains(TileKey))
 	{
@@ -182,7 +182,7 @@ FTileDefinition* AGridManagerActor::GetTileDefinition(FInt32Vector2 TileKey)
 	return nullptr;
 }
 
-TArray<FInt32Vector2> AGridManagerActor::FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile) 
+TArray<FIntVector2> AGridManagerActor::FindPath(FIntVector2 StartTile, FIntVector2 EndTile) 
 {
 	return PathFindingActor->FindPath(StartTile, EndTile);
 }
@@ -202,8 +202,8 @@ AGameplayCharacter* AGridManagerActor::FindClosestCharacter(AGameplayCharacter* 
 		}
 	}
 
-	TArray<FInt32Vector2> Currentpath;
-	TArray<FInt32Vector2> path;
+	TArray<FIntVector2> Currentpath;
+	TArray<FIntVector2> path;
 	AGameplayCharacter* CurrentClosestCharacter = nullptr;
 
 	auto GameMode = Cast<AGameplayGameMode>(GetWorld()->GetAuthGameMode());
@@ -212,7 +212,7 @@ AGameplayCharacter* AGridManagerActor::FindClosestCharacter(AGameplayCharacter* 
 
 	for (auto character : characters) 
 	{
-		TArray<FInt32Vector2> characterNeighbors = GetValidTileNeighbors(character->CurrentTile);
+		TArray<FIntVector2> characterNeighbors = GetValidTileNeighbors(character->CurrentTile);
 
 		if (characterNeighbors.Num() == 0)
 			continue;
@@ -232,9 +232,9 @@ AGameplayCharacter* AGridManagerActor::FindClosestCharacter(AGameplayCharacter* 
 	return CurrentClosestCharacter;
 }
 
-TArray<FInt32Vector2> AGridManagerActor::GetValidTileNeighbors(FInt32Vector2 StartTile)
+TArray<FIntVector2> AGridManagerActor::GetValidTileNeighbors(FIntVector2 StartTile)
 {
-	TArray<FInt32Vector2> TilesFound;
+	TArray<FIntVector2> TilesFound;
 	for (auto direction : CardinalDirections)
 	{
 		direction += StartTile;
@@ -250,7 +250,7 @@ TArray<FInt32Vector2> AGridManagerActor::GetValidTileNeighbors(FInt32Vector2 Sta
 	}
 	return TilesFound;
 }
-TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData(FPathFindingData CenterTile, FInt32Vector2 EndTile)
+TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData(FPathFindingData CenterTile, FIntVector2 EndTile)
 {
 	TArray<FPathFindingData> TilesFound;
 	for (auto direction : CardinalDirections)
@@ -276,7 +276,7 @@ TArray<FPathFindingData> AGridManagerActor::GetValidTileNeighborsPathFindingData
 	}
 	return TilesFound;
 }
-FInt32Vector2 AGridManagerActor::RotateOffset(FInt32Vector2 offset, int rotation)
+FIntVector2 AGridManagerActor::RotateOffset(FIntVector2 offset, int rotation)
 {
 	int X = 0;
 	switch (rotation)

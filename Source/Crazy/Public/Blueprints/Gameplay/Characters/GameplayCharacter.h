@@ -52,7 +52,7 @@ public:
 	int PushCollisionDamage;
 
 	UPROPERTY(VisibleAnywhere, Category = "CharacterStats|Values")
-	FInt32Vector2 CurrentTile;
+	FIntVector2 CurrentTile;
 	UPROPERTY()
 	AGridManagerActor* Grid;
 
@@ -88,22 +88,24 @@ public:
 	float MyTakeDamage(float DamageAmount, DamageElements damageElement);
 	float CheckInflictedDamage(float DamageAmount, DamageElements damageElement);
 
-	int UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, int AP);
-	void UseSkillAsCharacter(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
-	void UseSkillAsGameplayPawn(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
+	int UseSkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, int AP);
+	void UseSkillAsCharacter(FSkillDefinition* skillUsed, FIntVector2 targetedTile);
+	void UseSkillAsGameplayPawn(FSkillDefinition* skillUsed, FIntVector2 targetedTile, AGameplayPawn* Instigator);
 
-	int WalkToTile(FInt32Vector2 targetedTile, int AP);
-	void WalkToTileAsCharacter(FInt32Vector2 targetedTile);
-	void WalkToTileAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* Instigator);
-	int CheckWalkToTileAPCost(FInt32Vector2 targetedTile);
-	FInt32Vector2 CheckWalkToTileAPCostAndRemaningWalk(FInt32Vector2 targetedTile);
+	int WalkToTile(FIntVector2 targetedTile, int AP);
+	void WalkToTileAsCharacter(FIntVector2 targetedTile);
+	void WalkToTileAsGameplayPawn(FIntVector2 targetedTile, AGameplayPawn* Instigator);
+	int CheckWalkToTileAPCost(FIntVector2 targetedTile);
+	FIntVector2 CheckWalkToTileAPCostAndRemaningWalk(FIntVector2 targetedTile);
 
-	float PushToTile(FInt32Vector2 targetedTile);
-	float CheckPushToTile(FInt32Vector2 targetedTile);
+	UFUNCTION(BlueprintCallable)
+	float PushToTile(FIntVector2 targetedTile);
+	float CheckPushToTile(FIntVector2 targetedTile);
 
 	float PlayPushCollisionReaction();
 
-	void MoveToTile(FInt32Vector2 targetedTile);
+	UFUNCTION(BlueprintCallable)
+	void MoveToTile(FIntVector2 targetedTile);
 
 
 	void AddSkill(FName SkillKey, UCrazyGameInstance* GameInstance);

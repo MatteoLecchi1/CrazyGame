@@ -25,10 +25,10 @@ void APathFindingActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-TArray<FInt32Vector2> APathFindingActor::FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile)
+TArray<FIntVector2> APathFindingActor::FindPath(FIntVector2 StartTile, FIntVector2 EndTile)
 {
 	CleanAllData();
-	TArray<FInt32Vector2> EmptyPath;
+	TArray<FIntVector2> EmptyPath;
 	CurrentStartTile = StartTile;
 	CurrentEndTile = EndTile;
 
@@ -70,14 +70,14 @@ bool APathFindingActor::AnalyseNextDiscoveredTile()
 	}
 	return false;
 }
-int APathFindingActor::GetMinimumCostBetweenTwoTiles(FInt32Vector2 StartTile, FInt32Vector2 EndTile) {
+int APathFindingActor::GetMinimumCostBetweenTwoTiles(FIntVector2 StartTile, FIntVector2 EndTile) {
 	return GridManager->CalculateDistance(StartTile, EndTile);
 }
-TArray<FInt32Vector2> APathFindingActor::GeneratePath()
+TArray<FIntVector2> APathFindingActor::GeneratePath()
 {
-	FInt32Vector2 current = CurrentEndTile;
-	TArray<FInt32Vector2> InvertedPath;
-	TArray<FInt32Vector2> ReturnPath;
+	FIntVector2 current = CurrentEndTile;
+	TArray<FIntVector2> InvertedPath;
+	TArray<FIntVector2> ReturnPath;
 
 	if(GridManager->GetTileDefinition(current)->Occupant)
 	{
@@ -99,7 +99,7 @@ TArray<FInt32Vector2> APathFindingActor::GeneratePath()
 }
 FPathFindingData APathFindingActor::PullCheapestTileOutOfDiscoveredList()
 {
-	FInt32Vector2 tileIndex =  DiscoveredTilesIndexes[0];
+	FIntVector2 tileIndex =  DiscoveredTilesIndexes[0];
 	FPathFindingData* currentDataIndex = PathFindingData.Find(tileIndex);
 	FPathFindingData& currentData = *currentDataIndex;
 

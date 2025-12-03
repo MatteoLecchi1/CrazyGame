@@ -179,13 +179,13 @@ void AEnemyPawn::PlayCharacterTurn(AGameplayCharacter* character, TArray<AGamepl
 		character->UseSkillAsCharacter(&character->Skills[FavoredSkillIndex], FavoredTileToTarget);
 	}
 }
-FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FSkillDefinition skill, FInt32Vector2 TargetTile)
+FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FSkillDefinition skill, FIntVector2 TargetTile)
 {
 	int maxRange = skill.MaxRange;
 	int minRange = skill.MinRange;
 
 	FTileAndReward ReturnValue;
-	ReturnValue.Tile = FInt32Vector2(-1, -1); 
+	ReturnValue.Tile = FIntVector2(-1, -1); 
 	ReturnValue.Reward = -30000;
 
 	float CurrentReward = -1;
@@ -243,7 +243,7 @@ FTileAndReward AEnemyPawn::FindFavoredTileToUseSkill(class AGameplayCharacter* c
 	return ReturnValue;
 }
 
-float AEnemyPawn::CalculateDistanceReward(AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FInt32Vector2 TargetTile)
+float AEnemyPawn::CalculateDistanceReward(AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FIntVector2 TargetTile)
 {
 	auto closestCharacterTile = Grid->FindClosestCharacter(character, PossibleTargets)->CurrentTile;
 	int distance = Grid->CalculateDistance(TargetTile, closestCharacterTile);

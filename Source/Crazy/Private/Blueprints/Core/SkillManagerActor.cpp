@@ -27,23 +27,23 @@ void ASkillManagerActor::Tick(float DeltaTime)
 
 }
 
-void ASkillManagerActor::ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser)
+void ASkillManagerActor::ManageSkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, FIntVector2 StartTile, AGameplayCharacter* SkillUser)
 {
-	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
+	TArray<FIntVector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
 	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
-	PlaySkill(skillUsed, Targets, SkillUser);
+	PlaySkill(skillUsed, targetedTile, Targets, SkillUser);
 }
 
-float ASkillManagerActor::CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser)
+float ASkillManagerActor::CheckManageSkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, FIntVector2 StartTile, AGameplayCharacter* SkillUser)
 {
-	TArray<FInt32Vector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
+	TArray<FIntVector2> AOETiles = FindSkillAOE(skillUsed, targetedTile, StartTile);
 	TArray<AGameplayCharacter*> Targets = FindSkillTargets(skillUsed, AOETiles, targetedTile, SkillUser);
 	return CheckPlaySkill(skillUsed, Targets, SkillUser);
 }
 
-TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile)
+TArray<FIntVector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUsed, FIntVector2 targetedTile, FIntVector2 StartTile)
 {
-	TArray<FInt32Vector2> AOETiles;
+	TArray<FIntVector2> AOETiles;
 
 	switch (skillUsed->AOEtype)
 	{
@@ -79,9 +79,9 @@ TArray<FInt32Vector2> ASkillManagerActor::FindSkillAOE(FSkillDefinition* skillUs
 	}
 	return AOETiles;
 }
-TArray<FInt32Vector2> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
+TArray<FIntVector2> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skillUsed, FIntVector2 targetedTile)
 {
-	TArray<FInt32Vector2> AOETiles = skillUsed->AOEData.AOETiles;
+	TArray<FIntVector2> AOETiles = skillUsed->AOEData.AOETiles;
 	for (int i = 0; i <AOETiles.Num(); i++) 
 	{
 		AOETiles[i] += targetedTile;
@@ -89,9 +89,9 @@ TArray<FInt32Vector2> ASkillManagerActor::FindAOESkillAOE(FSkillDefinition* skil
 	return AOETiles;
 }
 
-TArray<FInt32Vector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile)
+TArray<FIntVector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FIntVector2 targetedTile, FIntVector2 StartTile)
 {
-	FInt32Vector2 relativeTargetedTile = StartTile - targetedTile;
+	FIntVector2 relativeTargetedTile = StartTile - targetedTile;
 	int TargetAreaDirection = 0;
 	if (abs(relativeTargetedTile.X) > abs(relativeTargetedTile.Y))
 	{
@@ -108,7 +108,7 @@ TArray<FInt32Vector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefin
 			TargetAreaDirection = 3;
 	}
 
-	TArray<FInt32Vector2> AOETiles = skillUsed->AOEData.AOETiles;
+	TArray<FIntVector2> AOETiles = skillUsed->AOEData.AOETiles;
 	
 	for (int i = 0; i < AOETiles.Num(); i++)
 	{
@@ -118,7 +118,7 @@ TArray<FInt32Vector2> ASkillManagerActor::FindDIRECTIONALAOESkillAOE(FSkillDefin
 	return AOETiles;
 }
 
-TArray<AGameplayCharacter*> ASkillManagerActor::FindSkillTargets(FSkillDefinition* skillUsed, TArray<FInt32Vector2> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser)
+TArray<AGameplayCharacter*> ASkillManagerActor::FindSkillTargets(FSkillDefinition* skillUsed, TArray<FIntVector2> targetedTiles, FIntVector2 targetedTile, AGameplayCharacter* SkillUser)
 {
 	TArray<AGameplayCharacter*> Targets;
 	for (auto tile : targetedTiles)
@@ -136,14 +136,14 @@ TArray<AGameplayCharacter*> ASkillManagerActor::FindSkillTargets(FSkillDefinitio
 	return Targets;
 }
 
-float ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser)
+float ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser)
 {
 	float reward = 0;
 	for (auto effectKey : skillUsed->SkillEffects)
 	{
 		if (USkillEffect** effect = SkillEffects.Find(effectKey))
 		{
-			reward += (*effect)->PlaySkillEffect(SkillUser, *skillUsed, Targets);
+			reward += (*effect)->PlaySkillEffect(SkillUser, targetedTile, *skillUsed, Targets);
 		}
 	}
 	return reward;

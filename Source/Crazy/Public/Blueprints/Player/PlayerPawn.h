@@ -39,7 +39,7 @@ public:
 	float targetCameraZoom;
 
 	UPROPERTY()
-	FInt32Vector2 HoveredTile;
+	FIntVector2 HoveredTile;
 	UPROPERTY(EditAnywhere, Category = "UI|HoveredTile")
 	TEnumAsByte<ETraceTypeQuery> TileTraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 

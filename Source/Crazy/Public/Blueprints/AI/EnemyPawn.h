@@ -15,7 +15,7 @@ struct CRAZY_API FTileAndReward
 	 GENERATED_BODY()
 
 	 UPROPERTY()
-	 FInt32Vector2 Tile = FInt32Vector2(-1, -1);
+	 FIntVector2 Tile = FIntVector2(-1, -1);
 	 UPROPERTY()
 	 float Reward = -30000;
  };
@@ -48,8 +48,8 @@ public:
 
 	UFUNCTION()
 	void PlayCharacterTurn(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets);
-	FTileAndReward FindFavoredTileToUseSkill(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FSkillDefinition skill, FInt32Vector2 TargetTile);
-	float CalculateDistanceReward(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FInt32Vector2 TargetTile);
+	FTileAndReward FindFavoredTileToUseSkill(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FSkillDefinition skill, FIntVector2 TargetTile);
+	float CalculateDistanceReward(class AGameplayCharacter* character, TArray<AGameplayCharacter*> PossibleTargets, FIntVector2 TargetTile);
 	void OnTurnStart() override;
 	UFUNCTION()
 	void EndTurn();

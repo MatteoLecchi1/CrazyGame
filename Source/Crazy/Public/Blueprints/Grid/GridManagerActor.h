@@ -36,11 +36,11 @@ public:
 	TEnumAsByte<ECollisionChannel> PushChannel = ECC_Pawn;
 
 	UPROPERTY()
-	TMap<FInt32Vector2,FTileDefinition> Tiles;
+	TMap<FIntVector2,FTileDefinition> Tiles;
 	UPROPERTY()
 	class APathFindingActor* PathFindingActor;
 	UPROPERTY()
-	TArray<FInt32Vector2> CardinalDirections;
+	TArray<FIntVector2> CardinalDirections;
 
 public:
 	// Called when the game starts or when spawned
@@ -55,17 +55,17 @@ public:
 	void SpawnGrid(int TilesX, int TilesY);
 	void SpawnSpawnSingleTile(int X, int Y);
 	void SetCardinalDirections();
-	FInt32Vector2 GetTileAtLocation(FVector location);
+	FIntVector2 GetTileAtLocation(FVector location);
 
-	int CalculateDistance(FInt32Vector2 Tile1, FInt32Vector2 Tile2);
-	FHitResult CheckForObstruction(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
-	FHitResult CheckForObstructionUsingSphere(FInt32Vector2 StartTile, FInt32Vector2 EndTile, AActor* character);
+	int CalculateDistance(FIntVector2 Tile1, FIntVector2 Tile2);
+	FHitResult CheckForObstruction(FIntVector2 StartTile, FIntVector2 EndTile);
+	FHitResult CheckForObstructionUsingSphere(FIntVector2 StartTile, FIntVector2 EndTile, AActor* character);
 	FHitResult CheckForObstructionBetweenLocations(FVector traceStart, FVector traceEnd);
 
-	FTileDefinition* GetTileDefinition(FInt32Vector2 TileKey);
-	TArray<FInt32Vector2> FindPath(FInt32Vector2 StartTile, FInt32Vector2 EndTile);
+	FTileDefinition* GetTileDefinition(FIntVector2 TileKey);
+	TArray<FIntVector2> FindPath(FIntVector2 StartTile, FIntVector2 EndTile);
 	class AGameplayCharacter* FindClosestCharacter(class AGameplayCharacter* Startcharacter, TArray<class AGameplayCharacter*> characters);
-	TArray<FInt32Vector2> GetValidTileNeighbors(FInt32Vector2 StartTile);
-	TArray<FPathFindingData> GetValidTileNeighborsPathFindingData(FPathFindingData CenterTile, FInt32Vector2 EndTile);
-	FInt32Vector2 RotateOffset(FInt32Vector2 offset, int rotation);
+	TArray<FIntVector2> GetValidTileNeighbors(FIntVector2 StartTile);
+	TArray<FPathFindingData> GetValidTileNeighborsPathFindingData(FPathFindingData CenterTile, FIntVector2 EndTile);
+	FIntVector2 RotateOffset(FIntVector2 offset, int rotation);
 };

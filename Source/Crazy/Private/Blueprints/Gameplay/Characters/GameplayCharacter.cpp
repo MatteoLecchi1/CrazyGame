@@ -23,7 +23,7 @@ void AGameplayCharacter::BeginPlay()
 void AGameplayCharacter::Initialize()
 {
 	Grid = Cast<AGridManagerActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AGridManagerActor::StaticClass()));
-	FInt32Vector2 newTile = Grid->GetTileAtLocation(GetActorLocation());
+	FIntVector2 newTile = Grid->GetTileAtLocation(GetActorLocation());
 
 	if (newTile.X < 0) //invalid tile
 	{
@@ -139,7 +139,7 @@ void AGameplayCharacter::OnDeath()
 	Destroy();
 }
 
-int AGameplayCharacter::UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, int AP)
+int AGameplayCharacter::UseSkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, int AP)
 {
 	if (skillUsed->CurrentCooldown > 0)
 		return 0;
@@ -161,20 +161,20 @@ int AGameplayCharacter::UseSkill(FSkillDefinition* skillUsed, FInt32Vector2 targ
 	int APUsed = skillUsed->APCost;
 	return APUsed;
 }
-void AGameplayCharacter::UseSkillAsCharacter(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile)
+void AGameplayCharacter::UseSkillAsCharacter(FSkillDefinition* skillUsed, FIntVector2 targetedTile)
 {
 	int APused = UseSkill(skillUsed, targetedTile,CurrentAP);
 	CurrentAP -= APused;
 }
-void AGameplayCharacter::UseSkillAsGameplayPawn(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, AGameplayPawn* myInstigator)
+void AGameplayCharacter::UseSkillAsGameplayPawn(FSkillDefinition* skillUsed, FIntVector2 targetedTile, AGameplayPawn* myInstigator)
 {
 	int APused = UseSkill(skillUsed, targetedTile, myInstigator->CurrentAP);
 	myInstigator->SetAP(myInstigator->CurrentAP - APused);
 }
 
-int AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, int AP)
+int AGameplayCharacter::WalkToTile(FIntVector2 targetedTile, int AP)
 {
-  	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
+  	TArray<FIntVector2> path = Grid->FindPath(CurrentTile, targetedTile);
 
 	int distance = path.Num();
 	if (distance == 0)
@@ -202,21 +202,21 @@ int AGameplayCharacter::WalkToTile(FInt32Vector2 targetedTile, int AP)
 	}
 	return 0;
 }
-void AGameplayCharacter::WalkToTileAsCharacter(FInt32Vector2 targetedTile)
+void AGameplayCharacter::WalkToTileAsCharacter(FIntVector2 targetedTile)
 {
 	int APused = WalkToTile(targetedTile, CurrentAP);
 	CurrentAP -= APused;
 }
-void AGameplayCharacter::WalkToTileAsGameplayPawn(FInt32Vector2 targetedTile, AGameplayPawn* myInstigator)
+void AGameplayCharacter::WalkToTileAsGameplayPawn(FIntVector2 targetedTile, AGameplayPawn* myInstigator)
 {
 	int APused = WalkToTile(targetedTile, myInstigator->CurrentAP);
 	myInstigator->SetAP(myInstigator->CurrentAP - APused);
 }
-int AGameplayCharacter::CheckWalkToTileAPCost(FInt32Vector2 targetedTile)
+int AGameplayCharacter::CheckWalkToTileAPCost(FIntVector2 targetedTile)
 {
 	if(targetedTile.X == -1)
 		return 0;
-	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
+	TArray<FIntVector2> path = Grid->FindPath(CurrentTile, targetedTile);
 
 	int distance = path.Num();
 	if (distance == 0)
@@ -234,16 +234,16 @@ int AGameplayCharacter::CheckWalkToTileAPCost(FInt32Vector2 targetedTile)
 	}
 	return 0;
 }
-FInt32Vector2 AGameplayCharacter::CheckWalkToTileAPCostAndRemaningWalk(FInt32Vector2 targetedTile)
+FIntVector2 AGameplayCharacter::CheckWalkToTileAPCostAndRemaningWalk(FIntVector2 targetedTile)
 {
 	if (targetedTile.X == -1)
-		return FInt32Vector2(-1, -1);
+		return FIntVector2(-1, -1);
 
-	TArray<FInt32Vector2> path = Grid->FindPath(CurrentTile, targetedTile);
+	TArray<FIntVector2> path = Grid->FindPath(CurrentTile, targetedTile);
 
 	int distance = path.Num();
 	if (distance == 0)
-		return FInt32Vector2(0, 0);
+		return FIntVector2(0, 0);
 
 	auto CurrentCheckMovement = CurrentMovement;
 
@@ -253,12 +253,12 @@ FInt32Vector2 AGameplayCharacter::CheckWalkToTileAPCostAndRemaningWalk(FInt32Vec
 		int APUsed = FMath::DivideAndRoundUp(abs(CurrentCheckMovement), MovementSpeed);
 		CurrentCheckMovement += MovementSpeed * APUsed;
 
-		return FInt32Vector2(APUsed, CurrentCheckMovement);
+		return FIntVector2(APUsed, CurrentCheckMovement);
 	}
-	return FInt32Vector2(0,CurrentCheckMovement);
+	return FIntVector2(0,CurrentCheckMovement);
 }
 
-float AGameplayCharacter::PushToTile(FInt32Vector2 targetedTile)
+float AGameplayCharacter::PushToTile(FIntVector2 targetedTile)
 {
 	if (CurrentTile == targetedTile)
 		return 0;
@@ -295,7 +295,7 @@ float AGameplayCharacter::PlayPushCollisionReaction()
 	return MyTakeDamage(PushCollisionDamage,DamageElements::BLUNT);
 }
 
-void AGameplayCharacter::MoveToTile(FInt32Vector2 targetedTile)
+void AGameplayCharacter::MoveToTile(FIntVector2 targetedTile)
 {
 	FTileDefinition* currentTileDefinition = Grid->GetTileDefinition(CurrentTile);
 	FTileDefinition* targetedTileDefinition = Grid->GetTileDefinition(targetedTile);

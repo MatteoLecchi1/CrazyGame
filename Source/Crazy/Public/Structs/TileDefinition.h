@@ -85,10 +85,10 @@ struct CRAZY_API FAOEDefinition : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
-	TArray<FInt32Vector2> AOETiles = { FInt32Vector2(0, 0) };
-	UPROPERTY(EditAnywhere)
-	TArray<FInt32Vector2> AOEPushDirections = { FInt32Vector2(0, 0) };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FIntVector2> AOETiles = { FIntVector2(0, 0) };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FIntVector2> AOEPushDirections = { FIntVector2(0, 0) };
 };
 USTRUCT(BlueprintType)
 struct CRAZY_API FSkillDefinition : public FTableRowBase
@@ -131,7 +131,7 @@ struct CRAZY_API FPathFindingData
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FInt32Vector2 Index = FInt32Vector2(-1,-1);
+	FIntVector2 Index = FIntVector2(-1,-1);
 	UPROPERTY()
 	int CostToEnterTile = 1;
 	UPROPERTY()
@@ -139,5 +139,5 @@ struct CRAZY_API FPathFindingData
 	UPROPERTY()
 	int MinimumCostToEnd = 999999;
 	UPROPERTY()
-	FInt32Vector2 PreviousIndex = FInt32Vector2(-1, -1);
+	FIntVector2 PreviousIndex = FIntVector2(-1, -1);
 };

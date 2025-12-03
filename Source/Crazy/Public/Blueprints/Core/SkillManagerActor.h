@@ -34,13 +34,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser);
-	float CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser);
-	TArray<FInt32Vector2> FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
-	TArray<FInt32Vector2> FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
-	TArray<FInt32Vector2> FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
+	void ManageSkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, FIntVector2 StartTile, AGameplayCharacter* SkillUser);
+	float CheckManageSkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, FIntVector2 StartTile, AGameplayCharacter* SkillUser);
+	TArray<FIntVector2> FindSkillAOE(FSkillDefinition* skillUsed, FIntVector2 targetedTile, FIntVector2 StartTile);
+	TArray<FIntVector2> FindAOESkillAOE(FSkillDefinition* skillUsed, FIntVector2 targetedTile);
+	TArray<FIntVector2> FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FIntVector2 targetedTile, FIntVector2 StartTile);
 
-	TArray<AGameplayCharacter*> FindSkillTargets(FSkillDefinition* skillUsed, TArray<FInt32Vector2> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
-	float PlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser);
+	TArray<AGameplayCharacter*> FindSkillTargets(FSkillDefinition* skillUsed, TArray<FIntVector2> targetedTiles, FIntVector2 targetedTile, AGameplayCharacter* SkillUser);
+	float PlaySkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser);
 	float CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser);
 };
