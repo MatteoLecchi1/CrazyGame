@@ -29,7 +29,7 @@ void AGameplayGameMode::Tick(float DeltaTime)
 
 		FActorSpawnParameters SpawnInfo;
 		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SkillManagerActor = GetWorld()->SpawnActor<ASkillManagerActor>();
+		SkillManagerActor = GetWorld()->SpawnActor<ASkillManagerActor>(SkillManagerActorClass);
 		SkillManagerActor->GameMode = this;
 		SkillManagerActor->Grid = gameplayGrid;
 

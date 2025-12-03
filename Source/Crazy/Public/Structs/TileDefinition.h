@@ -116,9 +116,13 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 	int Cooldown = 1;
 	UPROPERTY()
 	int CurrentCooldown = 0;
-	UPROPERTY(EditAnywhere, Category = "AOE")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FName> SkillEffects;
+
+	UPROPERTY(EditAnywhere, Category = "AOE", BlueprintReadWrite)
 	AOEType AOEtype = AOEType::SINGLETILE;
-	UPROPERTY(EditAnywhere, Category = "AOE")
+	UPROPERTY(EditAnywhere, Category = "AOE", BlueprintReadWrite)
 	FAOEDefinition AOEData;
 };
 USTRUCT(BlueprintType)

@@ -34,6 +34,9 @@ public:
 	UPROPERTY()
 	class ASkillManagerActor* SkillManagerActor;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ASkillManagerActor> SkillManagerActorClass;
+
 	UPROPERTY()
 	int Tick1Timer = 0;
 

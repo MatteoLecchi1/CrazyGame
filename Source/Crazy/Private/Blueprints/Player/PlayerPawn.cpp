@@ -200,7 +200,7 @@ void APlayerPawn::UpdateAOESKILLStateVisuals()
 
 	for (auto tile : AOETiles)
 	{
-		FVector tileLocation = Grid->GetTileDefinition(std::get<0>(tile))->Location;
+		FVector tileLocation = Grid->GetTileDefinition(tile)->Location;
 		if (i < AOESkillTileWidgets.Num())
 		{
 			AOESkillTileWidgets[i]->SetActorLocation(tileLocation);

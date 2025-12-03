@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Structs/TileDefinition.h"
 #include "Blueprints/Grid/GridManagerActor.h"
+#include "Blueprints/Core/SkillEffect.h"
 #include "SkillManagerActor.generated.h"
 
 UCLASS()
@@ -22,6 +23,8 @@ public:
 	class AGameplayGameMode* GameMode;
 	UPROPERTY()
 	AGridManagerActor* Grid;
+	UPROPERTY(Instanced,EditAnywhere)
+	TMap<FName,USkillEffect*> SkillEffects;
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,13 +36,11 @@ public:
 
 	void ManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser);
 	float CheckManageSkill(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile, AGameplayCharacter* SkillUser);
+	TArray<FInt32Vector2> FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
+	TArray<FInt32Vector2> FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
+	TArray<FInt32Vector2> FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
 
-	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> FindSkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
-	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> FindSINGLETILESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 StartTile, FInt32Vector2 targetedTile);
-	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> FindAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile);
-	TArray<std::tuple<FInt32Vector2, FInt32Vector2>> FindDIRECTIONALAOESkillAOE(FSkillDefinition* skillUsed, FInt32Vector2 targetedTile, FInt32Vector2 StartTile);
-
-	TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> FindSkillTargets(FSkillDefinition* skillUsed, TArray<std::tuple<FInt32Vector2, FInt32Vector2>> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
-	void PlaySkill(FSkillDefinition* skillUsed, TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets);
-	float CheckPlaySkill(FSkillDefinition* skillUsed, TArray<std::tuple<AGameplayCharacter*, FInt32Vector2>> Targets, AGameplayCharacter* SkillUser);
+	TArray<AGameplayCharacter*> FindSkillTargets(FSkillDefinition* skillUsed, TArray<FInt32Vector2> targetedTiles, FInt32Vector2 targetedTile, AGameplayCharacter* SkillUser);
+	float PlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser);
+	float CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser);
 };
