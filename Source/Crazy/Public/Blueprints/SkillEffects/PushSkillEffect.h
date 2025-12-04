@@ -17,9 +17,9 @@ class CRAZY_API UPushSkillEffect : public USkillEffect
 	GENERATED_BODY()
 
 public:
-	virtual float PlaySkillEffect_Implementation(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*>& Targets) override;
+	virtual float PlaySkillEffect_Implementation(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*>& Targets, AGridManagerActor* Grid) override;
 private:
-	float PushSingleTarget(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*>& Targets);
+	float PushSingleTarget(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*>& Targets, AGridManagerActor* Grid);
 	float PushAOE(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*>& Targets);
-	float PushDirectionalAOE(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*>& Targets);
+	float PushDirectionalAOE(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*>& Targets, AGridManagerActor* Grid);
 };

@@ -3,7 +3,7 @@
 
 #include "Blueprints/Core/SkillEffect.h"
 
-float USkillEffect::PlaySkillEffect_Implementation(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*> &Targets)
+float USkillEffect::PlaySkillEffect_Implementation(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*> &Targets, AGridManagerActor* Grid)
 {
 	return 0;
 }

@@ -143,7 +143,7 @@ float ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, FIntVector2 tar
 	{
 		if (USkillEffect** effect = SkillEffects.Find(effectKey))
 		{
-			reward += (*effect)->PlaySkillEffect(SkillUser, targetedTile, *skillUsed, Targets);
+			reward += (*effect)->PlaySkillEffect(SkillUser, targetedTile, *skillUsed, Targets, Grid);
 		}
 	}
 	return reward;
