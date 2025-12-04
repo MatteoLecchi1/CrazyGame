@@ -32,12 +32,12 @@ public:
 	UPROPERTY()
 	int CurrentMovement = 0;
 
-	UPROPERTY(VisibleAnywhere, Category = "CharacterStats|Combat")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	int CurrentAP = 0;
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	int MaxAP = 2;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	Factions Faction;
 
 	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
@@ -45,13 +45,13 @@ public:
 	UPROPERTY()
 	TArray<FSkillDefinition> Skills;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	TMap<DamageElements, int> DamageResistanceMap;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|Combat")
 	int PushCollisionDamage;
 
-	UPROPERTY(VisibleAnywhere, Category = "CharacterStats|Values")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CharacterStats|Values")
 	FIntVector2 CurrentTile;
 	UPROPERTY()
 	AGridManagerActor* Grid;
@@ -62,17 +62,17 @@ public:
 	UPROPERTY()
 	AGameplayGameMode* GameMode;
 
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|AI|Reward Weights")
 	float APWeight = -5;
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|AI|Reward Weights")
 	float DamageWeight = 1;
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|AI|Reward Weights")
 	float FriendlyDamageWeight = -1;
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|AI|Reward Weights")
 	float RemaningWalkDistanceWeight = 1;
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|AI|Reward Weights")
 	float FavoredDistanceFromTarget = 1;
-	UPROPERTY(EditAnywhere, Category = "CharacterStats|AI|Reward Weights")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|AI|Reward Weights")
 	float FavoredDistanceMultiplierPerTile = -3;
 
 protected:
