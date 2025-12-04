@@ -25,6 +25,62 @@ float UPushSkillEffect::PlaySkillEffect_Implementation(AGameplayCharacter* Skill
 
 float UPushSkillEffect::PushSingleTarget(AGameplayCharacter* SkillUser, FIntVector2 targetedTile, FSkillDefinition skillUsed, const TArray<AGameplayCharacter*>& Targets, AGridManagerActor* Grid)
 {
+	if (Targets.Num() < 1)
+		return 0;
+
+	FIntVector2 relativeTargetedTile = SkillUser->CurrentTile - targetedTile;
+	FIntVector2 pushDirection;
+	int pushForce = skillUsed.SingleTilePushForce;
+
+	if (abs(relativeTargetedTile.X) == abs(relativeTargetedTile.Y))
+	{
+		if (relativeTargetedTile.X > 0)
+		{
+			if (relativeTargetedTile.Y > 0)
+			{
+				pushDirection = FIntVector2(-1, -1);
+				pushForce /= 2;
+			}
+			else
+			{
+				pushDirection = FIntVector2(-1, 1);
+				pushForce /= 2;
+			}
+		}
+		else
+		{
+			if (relativeTargetedTile.Y > 0)
+			{
+				pushDirection = FIntVector2(1, -1);
+				pushForce /= 2;
+			}
+			else
+			{
+				pushDirection = FIntVector2(1, 1);
+				pushForce /= 2;
+			}
+		}
+	}
+	else if (abs(relativeTargetedTile.X) > abs(relativeTargetedTile.Y))
+	{
+		if (relativeTargetedTile.X > 0)
+			pushDirection = FIntVector2(-1,0);
+		else
+			pushDirection = FIntVector2(1, 0);
+	}
+	else
+	{
+		if (relativeTargetedTile.Y > 0)
+			pushDirection = FIntVector2(0, -1);
+		else
+			pushDirection = FIntVector2(0, 1);
+	}
+	pushDirection *= pushForce;
+
+	float reward = 0;
+
+	reward = Targets[0]->PushToTile(pushDirection + targetedTile);
+
 	return 0;
 }
 
