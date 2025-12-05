@@ -31,6 +31,10 @@ public:
 	UPROPERTY()
 	TArray<class AGameplayCharacter*> MonsterCharacters;
 
+
+	UPROPERTY()
+	TArray<class AGameplayCharacter*> DeathList;
+
 	UPROPERTY()
 	class ASkillManagerActor* SkillManagerActor;
 
@@ -47,5 +51,7 @@ public:
 
 	void AddCharacterToArrays(class AGameplayCharacter* Character);
 	void DropCharacterFromArrays(class AGameplayCharacter* Character);
+
+	void EmptyDeathList();
 
 };

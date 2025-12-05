@@ -146,6 +146,7 @@ float ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, FIntVector2 tar
 			reward += (*effect)->PlaySkillEffect(SkillUser, targetedTile, *skillUsed, Targets, Grid);
 		}
 	}
+	GameMode->EmptyDeathList();
 	return reward;
 }
 

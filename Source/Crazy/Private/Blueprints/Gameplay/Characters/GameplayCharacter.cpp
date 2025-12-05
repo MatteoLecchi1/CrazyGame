@@ -123,7 +123,7 @@ float AGameplayCharacter::MyTakeDamage(float DamageAmount, DamageElements damage
 
 	if (CurrentHP <= 0)
 	{
-		OnDeath();
+		GameMode->DeathList.Add(this);
 	}
 
 	return totalDamage;

@@ -95,7 +95,7 @@ void AGameplayGameMode::AddCharacterToArrays(class AGameplayCharacter* Character
 	}
 }
 
-void AGameplayGameMode::DropCharacterFromArrays(class AGameplayCharacter* Character)
+void AGameplayGameMode::DropCharacterFromArrays(AGameplayCharacter* Character)
 {
 	switch (Character->Faction)
 	{
@@ -114,5 +114,12 @@ void AGameplayGameMode::DropCharacterFromArrays(class AGameplayCharacter* Charac
 		break;
 	default:
 		break;
+	}
+}
+void AGameplayGameMode::EmptyDeathList()
+{
+	for (auto character : DeathList)
+	{
+		character->OnDeath();
 	}
 }
