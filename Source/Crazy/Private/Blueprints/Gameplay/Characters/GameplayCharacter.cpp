@@ -318,6 +318,14 @@ void AGameplayCharacter::OnTurnStart()
  	CurrentMovement = MovementSpeed;
 	FillAP();
 	DecreseAllCooldownsBy(1);
+
+	for (auto debuff : Debuffs)
+		debuff->OnBeginTurnWithDebuff(Grid);
+}
+void AGameplayCharacter::OnTurnEnd()
+{
+	for (auto debuff : Debuffs)
+		debuff->OnEndTurnWithDebuff(Grid);
 }
 void AGameplayCharacter::FillAP()
 {

@@ -60,17 +60,19 @@ void AGameplayGameMode::Tick(float DeltaTime)
 
 void AGameplayGameMode::GiveTurnToPlayer()
 {
-	for (auto character : PlayerCharacters) {
+	for (auto character : BanditCharacters)
+		character->OnTurnEnd();
+	for (auto character : PlayerCharacters)
 		character->OnTurnStart();
-	}
 
 	PlayerPawn->OnTurnStart();
 }
 void AGameplayGameMode::GiveTurnToEnemy()
 {
-	for (auto character : BanditCharacters) {
+	for (auto character : PlayerCharacters)
+		character->OnTurnEnd();
+	for (auto character : BanditCharacters)
 		character->OnTurnStart();
-	}
 
 	EnemyPawn->OnTurnStart();
 }

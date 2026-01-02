@@ -7,6 +7,7 @@
 #include "Structs/TileDefinition.h"
 #include "Blueprints/Grid/GridManagerActor.h"
 #include "Blueprints/Core/SkillEffect.h"
+#include "Blueprints/Debuffs/Debuff.h"
 #include "SkillManagerActor.generated.h"
 
 UCLASS()
@@ -25,6 +26,8 @@ public:
 	AGridManagerActor* Grid;
 	UPROPERTY(Instanced,EditAnywhere)
 	TMap<FName,USkillEffect*> SkillEffects;
+	UPROPERTY(EditAnywhere)
+	TMap<FName, TSubclassOf<UDebuff>> Debuffs;
 
 protected:
 	// Called when the game starts or when spawned

@@ -58,9 +58,11 @@ public:
 
 	UPROPERTY()
 	UCharacterWidget* CharacterWidget;
-
 	UPROPERTY()
 	AGameplayGameMode* GameMode;
+
+	UPROPERTY(BlueprintReadWrite,VisibleAnywhere)
+	TArray<class UDebuff*> Debuffs;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CharacterStats|AI|Reward Weights")
 	float APWeight = -5;
@@ -111,6 +113,7 @@ public:
 	void AddSkill(FName SkillKey, UCrazyGameInstance* GameInstance);
 
 	void OnTurnStart();
+	void OnTurnEnd();
 	void FillAP();
 	void DecreseAllCooldownsBy(int ammount);
 

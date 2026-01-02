@@ -146,6 +146,24 @@ float ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, FIntVector2 tar
 			reward += (*effect)->PlaySkillEffect(SkillUser, targetedTile, *skillUsed, Targets, Grid);
 		}
 	}
+	for (auto DebuffKey : skillUsed->Debuffs)
+	{
+		for (auto Target : Targets)
+		{
+			if (TSubclassOf<UDebuff>* Debuff = Debuffs.Find(DebuffKey))
+			{
+				TSubclassOf<UDebuff> DebuffClass = (*Debuff);
+				UDebuff* CurrentDebuff = NewObject<UDebuff>(Target,DebuffClass);
+				Target->Debuffs.Add(CurrentDebuff);
+
+				CurrentDebuff->DebuffedCharacter = Target;
+				reward += CurrentDebuff->OnDebuffApplyed(Grid, SkillUser);
+
+				FString TheFloatStr = CurrentDebuff->GetClass()->GetName();
+				GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, *TheFloatStr);
+			}
+		}
+	}
 	GameMode->EmptyDeathList();
 	return reward;
 }

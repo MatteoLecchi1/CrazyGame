@@ -119,6 +119,8 @@ struct CRAZY_API FSkillDefinition : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> SkillEffects = {"Damage"};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FName> Debuffs;
 
 	UPROPERTY(EditAnywhere, Category = "AOE", BlueprintReadWrite)
 	AOEType AOEtype = AOEType::SINGLETILE;
