@@ -3,6 +3,7 @@
 
 #include "Blueprints/Core/SkillManagerActor.h"
 #include "Blueprints/Gameplay/Characters/GameplayCharacter.h"
+#include "Blueprints/Debuffs/Debuff.h"
 #include "Chaos/DebugDrawQueue.h"
 
 // Sets default values
@@ -150,22 +151,55 @@ float ASkillManagerActor::PlaySkill(FSkillDefinition* skillUsed, FIntVector2 tar
 	{
 		for (auto Target : Targets)
 		{
-			if (TSubclassOf<UDebuff>* Debuff = Debuffs.Find(DebuffKey))
-			{
-				TSubclassOf<UDebuff> DebuffClass = (*Debuff);
-				UDebuff* CurrentDebuff = NewObject<UDebuff>(Target,DebuffClass);
-				Target->Debuffs.Add(CurrentDebuff);
-
-				CurrentDebuff->DebuffedCharacter = Target;
-				reward += CurrentDebuff->OnDebuffApplyed(Grid, SkillUser);
-
-				FString TheFloatStr = CurrentDebuff->GetClass()->GetName();
-				GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, *TheFloatStr);
-			}
+			reward += ApplyDebuff(Target, SkillUser, DebuffKey);
 		}
 	}
 	GameMode->EmptyDeathList();
 	return reward;
+}
+
+float ASkillManagerActor::ApplyDebuff(AGameplayCharacter* Target, AGameplayCharacter* InstigatingCharacter, FName DebuffKey)
+{
+	if (TSubclassOf<UDebuff>* Debuff = Debuffs.Find(DebuffKey))
+	{
+		TSubclassOf<UDebuff> DebuffClass = (*Debuff);
+
+		bool TargetAlreadyHasDebuff = false;
+		for (auto CurrentTargetDebuff : Target->Debuffs)
+			if (CurrentTargetDebuff->GetClass()->IsChildOf(DebuffClass))
+			{
+				switch (CurrentTargetDebuff->reApplicationResponse)
+				{
+				case ReApplicationResponse::ADD:
+					CurrentTargetDebuff->Counter += CurrentTargetDebuff->BaseCounter;
+					if (CurrentTargetDebuff->Counter > CurrentTargetDebuff->MaxCounter)
+						CurrentTargetDebuff->Counter = CurrentTargetDebuff->MaxCounter;
+					break;
+				case ReApplicationResponse::RESET:
+					CurrentTargetDebuff->Counter = CurrentTargetDebuff->BaseCounter;
+					break;
+				default:
+					break;
+				}
+				TargetAlreadyHasDebuff = true;
+				break;
+			}
+		if (TargetAlreadyHasDebuff)
+			return 0;
+
+		UDebuff* CurrentDebuff = NewObject<UDebuff>(Target, DebuffClass);
+		Target->Debuffs.Add(CurrentDebuff);
+
+		CurrentDebuff->DebuffedCharacter = Target;
+		float reward = CurrentDebuff->OnDebuffApplyed(Grid, InstigatingCharacter);
+
+		FString TheFloatStr = CurrentDebuff->GetClass()->GetName();
+		GEngine->AddOnScreenDebugMessage(-1, 1.0, FColor::Red, *TheFloatStr);
+
+		return reward;
+	}
+
+	return 0;
 }
 
 float ASkillManagerActor::CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser)

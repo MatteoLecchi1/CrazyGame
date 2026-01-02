@@ -13,5 +13,5 @@ void UDebuff::OnEndTurnWithDebuff_Implementation(AGridManagerActor* Grid)
 }
 float UDebuff::OnDebuffApplyed_Implementation(AGridManagerActor* Grid, AGameplayCharacter* InstigatingCharacter)
 {
-	return 0;
+	return BaseReward;
 }

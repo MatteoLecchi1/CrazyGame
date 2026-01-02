@@ -9,16 +9,17 @@
 /**
  * 
  */
+
 UCLASS()
 class CRAZY_API UDOTDebuff : public UDebuff
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "DOTValues")
+	UPROPERTY(EditAnywhere, Category = "Values|DOTValues")
 	int Damage = 10;
-	UPROPERTY(EditAnywhere, Category = "DOTValues")
+	UPROPERTY(EditAnywhere, Category = "Values|DOTValues")
 	DamageElements DamageElement = DamageElements::MAGIC;
-	UPROPERTY(EditAnywhere, Category = "DOTValues")
+	UPROPERTY(EditAnywhere, Category = "Values|DOTValues")
 	int BaseApplicationReward = 10;
 
 	void OnBeginTurnWithDebuff_Implementation(AGridManagerActor* Grid) override;

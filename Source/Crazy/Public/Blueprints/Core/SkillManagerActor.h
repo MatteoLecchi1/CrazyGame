@@ -45,5 +45,6 @@ public:
 
 	TArray<AGameplayCharacter*> FindSkillTargets(FSkillDefinition* skillUsed, TArray<FIntVector2> targetedTiles, FIntVector2 targetedTile, AGameplayCharacter* SkillUser);
 	float PlaySkill(FSkillDefinition* skillUsed, FIntVector2 targetedTile, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser);
+	float ApplyDebuff(AGameplayCharacter* Target, AGameplayCharacter* InstigatingCharacter, FName DebuffKey);
 	float CheckPlaySkill(FSkillDefinition* skillUsed, TArray<AGameplayCharacter*> Targets, AGameplayCharacter* SkillUser);
 };
